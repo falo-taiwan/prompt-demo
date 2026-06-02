@@ -1,0 +1,22 @@
+{
+  "name": "FALO Prompt Manager v1.01",
+  "short_name": "FALO Prompt",
+  "description": "Falo x Force Cheng local-first PWA for prompt asset management, model-dish teaching, OCR entry, voice input, and JSON Connect workflows.",
+  "version": "v1.01",
+  "author": "Falo x Force Cheng",
+  "release_date": "2026-06-01",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8fb",
+  "theme_color": "#0f766e",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FALO Prompt Manager">
+  <rect width="512" height="512" rx="96" fill="#0f766e"/>
+  <path d="M128 142h256c22.1 0 40 17.9 40 40v148c0 22.1-17.9 40-40 40H218l-72 52c-10.6 7.7-25.5.1-25.5-13V370H128c-22.1 0-40-17.9-40-40V182c0-22.1 17.9-40 40-40z" fill="#ffffff"/>
+  <path d="M160 214h192M160 260h160M160 306h108" stroke="#0f766e" stroke-width="30" stroke-linecap="round"/>
+</svg>

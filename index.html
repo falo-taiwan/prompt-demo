@@ -3,15 +3,3883 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="refresh" content="0; url=./packages/local-html/index.html">
-  <meta name="description" content="FALO Prompt Manager v1.01 demo entry for Falo x Force Cheng.">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="FALO Prompt Manager v1.01 is a local-first PWA for prompt asset management, model-dish teaching, variables, workflow prompt cards, OCR entry, voice input, and JSON Connect.">
   <meta name="author" content="Falo x Force Cheng">
+  <meta name="keywords" content="FALO Prompt Manager, Prompt Asset Management, Prompt Card, AI Workflow, model dish, Falo x Force Cheng, OCR, Voice, JSON Connect, PWA, Taiwan">
   <meta name="version" content="v1.01">
+  <meta name="release-date" content="2026-06-01">
   <meta name="geo.region" content="TW">
   <meta name="geo.placename" content="Taiwan">
+  <meta name="geo.position" content="23.6978;120.9605">
+  <meta name="ICBM" content="23.6978, 120.9605">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="FALO Prompt Manager v1.01">
+  <meta property="og:description" content="Falo x Force Cheng local-first PWA for prompt asset management and AI workflow teaching.">
+  <meta property="og:locale" content="zh_TW">
+  <meta name="twitter:card" content="summary">
   <title>FALO Prompt Manager v1.01</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <script src="./xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --panel-soft: #f1f5f9;
+      --line: #dbe3ee;
+      --text: #172033;
+      --muted: #64748b;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --accent-soft: #ccfbf1;
+      --blue: #2563eb;
+      --warning: #b45309;
+      --danger: #be123c;
+      --shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+      --radius: 8px;
+      --font-size: 15px;
+    }
+
+    body[data-theme="dark"] {
+      --bg: #111827;
+      --panel: #172033;
+      --panel-soft: #1f2937;
+      --line: #334155;
+      --text: #f8fafc;
+      --muted: #a7b3c4;
+      --accent: #2dd4bf;
+      --accent-strong: #5eead4;
+      --accent-soft: rgba(45, 212, 191, 0.16);
+      --shadow: 0 14px 36px rgba(0, 0, 0, 0.25);
+    }
+
+    body[data-theme="warm"],
+    body[data-theme="teaching"] {
+      --bg: #fff7f3;
+      --panel: #fffdfb;
+      --panel-soft: #fff1e8;
+      --line: #f3d9cf;
+      --text: #243044;
+      --muted: #7b6a78;
+      --accent: #de7f8f;
+      --accent-strong: #ad5868;
+      --accent-soft: #ffe1e9;
+      --blue: #4f8bd8;
+      --font-size: 18px;
+      --shadow: 0 10px 28px rgba(173, 88, 104, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      font-size: var(--font-size);
+      line-height: 1.55;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: color-mix(in srgb, var(--panel) 92%, transparent);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 220px;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .brand-subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .button,
+    .select {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--text);
+      min-height: 38px;
+      padding: 8px 11px;
+      font-weight: 750;
+    }
+
+    .button:hover,
+    .select:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      background: var(--panel-soft);
+    }
+
+    .button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    body[data-theme="dark"] .button.primary {
+      color: #06211f;
+    }
+
+    .button.primary:hover {
+      background: var(--accent-strong);
+    }
+
+    .button.subtle {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .button.draft {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .workspace {
+      width: 100%;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 20px 22px 40px;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr) 300px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .sidebar,
+    .inspector,
+    .main {
+      min-width: 0;
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel.pad {
+      padding: 15px;
+    }
+
+    .panel-title {
+      margin: 0 0 10px;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    .panel-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .drop-zone {
+      border: 1px dashed color-mix(in srgb, var(--muted) 55%, var(--line));
+      background: var(--panel-soft);
+      border-radius: var(--radius);
+      padding: 15px;
+      text-align: left;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .drop-zone strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .drop-zone.is-over {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .category-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .category-button {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: var(--radius);
+      padding: 9px 10px;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      font-weight: 800;
+    }
+
+    .category-button.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-strong);
+    }
+
+    .count-pill {
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 11px;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .field-save-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .field-state {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .field-state.dirty {
+      color: var(--warning);
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .field input,
+    .field textarea,
+    .field select,
+    .search-input,
+    .material-textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      min-height: 38px;
+      padding: 8px 10px;
+      color: var(--text);
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus,
+    .search-input:focus,
+    .material-textarea:focus {
+      outline: 2px solid color-mix(in srgb, var(--accent) 22%, transparent);
+      border-color: var(--accent);
+    }
+
+    .manager-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .manager-actions .button {
+      width: 100%;
+    }
+
+    .insert-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .insert-row .select {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .editor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .editor-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .editor-workbench {
+      border-color: color-mix(in srgb, #f59e0b 42%, var(--line));
+      overflow: hidden;
+    }
+
+    .editor-workbench[hidden] {
+      display: none;
+    }
+
+    .editor-workbench-header {
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      background: color-mix(in srgb, #fffbeb 42%, var(--panel));
+    }
+
+    body[data-theme="dark"] .editor-workbench-header {
+      background: color-mix(in srgb, #422006 22%, var(--panel));
+    }
+
+    .editor-compare-stack {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    @media (min-width: 1120px) {
+      .editor-compare-stack {
+        grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+        align-items: start;
+      }
+    }
+
+    .compare-block {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .compare-block.editing {
+      background: var(--panel);
+      border-color: color-mix(in srgb, #f59e0b 42%, var(--line));
+    }
+
+    .compare-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .compare-title-row h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .compare-preview {
+      min-height: 86px;
+      max-height: 220px;
+      overflow: auto;
+      white-space: pre-wrap;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .inline-editor {
+      border: 1px solid color-mix(in srgb, #f59e0b 42%, var(--line));
+      background: color-mix(in srgb, #fffbeb 46%, var(--panel));
+      border-radius: var(--radius);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    body[data-theme="dark"] .inline-editor {
+      background: color-mix(in srgb, #422006 24%, var(--panel));
+    }
+
+    .inline-editor.compact {
+      padding: 10px;
+      background: var(--panel);
+    }
+
+    .field-live-preview {
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--accent-soft) 34%, var(--panel));
+      padding: 9px 10px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .field-live-preview strong {
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .field-live-preview-body {
+      min-height: 36px;
+      max-height: 180px;
+      overflow: auto;
+      white-space: pre-wrap;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .inline-editor-title {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .inline-editor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .inline-editor-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .button.danger {
+      color: var(--danger);
+      border-color: color-mix(in srgb, var(--danger) 42%, var(--line));
+    }
+
+    .button:disabled,
+    .select:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 13px 15px;
+    }
+
+    .metric-value {
+      display: block;
+      font-size: 23px;
+      font-weight: 850;
+      line-height: 1.1;
+    }
+
+    .metric-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .toolbar {
+      padding: 13px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .segmented-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+
+    .segment-button {
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      min-height: 32px;
+      padding: 5px 9px;
+      font-weight: 850;
+      font-size: 12px;
+    }
+
+    .segment-button.active {
+      background: var(--panel);
+      color: var(--accent-strong);
+      box-shadow: 0 1px 5px rgba(15, 23, 42, 0.08);
+    }
+
+    .category-detail {
+      padding: 15px 16px 0;
+    }
+
+    .category-detail h2 {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .category-detail p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .workflow-strip {
+      margin: 14px 16px 0;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .workflow-step {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel-soft);
+      color: var(--muted);
+      padding: 5px 10px;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .workflow-step.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-strong);
+    }
+
+    .card-grid {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .prompt-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 15px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .prompt-card.active-card {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .prompt-card.editing-card {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+    }
+
+    .prompt-card.dirty-card {
+      background: color-mix(in srgb, #fffbeb 44%, var(--panel));
+    }
+
+    body[data-theme="dark"] .prompt-card.dirty-card {
+      background: color-mix(in srgb, #422006 26%, var(--panel));
+    }
+
+    .prompt-card-header {
+      display: grid;
+      gap: 8px;
+    }
+
+    .prompt-card-title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .prompt-card h3 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .status {
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+      background: #e0f2fe;
+      color: #075985;
+    }
+
+    .status.review {
+      background: #fef3c7;
+      color: var(--warning);
+    }
+
+    .status.draft {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
+    .status.deprecated {
+      background: #ffe4e6;
+      color: var(--danger);
+    }
+
+    .status.editing {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status.unsaved {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .description {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .tags,
+    .meta-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tag,
+    .meta {
+      background: #eef2ff;
+      color: #3730a3;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    body[data-theme="dark"] .tag,
+    body[data-theme="dark"] .meta {
+      background: rgba(99, 102, 241, 0.2);
+      color: #c7d2fe;
+    }
+
+    .meta {
+      background: var(--panel-soft);
+      color: var(--muted);
+    }
+
+    .prompt-preview {
+      border: 1px solid color-mix(in srgb, var(--line) 78%, var(--muted));
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+      padding: 12px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    mark {
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      border-radius: 4px;
+      padding: 0 3px;
+      font-weight: 750;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .detail-box {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+    }
+
+    .detail-box strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+
+    .detail-box ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .variable-toolbar {
+      display: grid;
+      gap: 9px;
+      margin: 10px 0 12px;
+    }
+
+    .new-variable-panel {
+      border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--accent-soft) 28%, var(--panel));
+      padding: 10px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .new-variable-panel[hidden] {
+      display: none;
+    }
+
+    .voice-status,
+    .pwa-status {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tool-panel {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 4px;
+      background: var(--accent);
+    }
+
+    .tool-panel.voice-card {
+      border-color: rgba(79, 70, 229, 0.22);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(255, 255, 255, 0));
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.06);
+    }
+
+    .tool-panel.voice-card::before {
+      background: #6366f1;
+    }
+
+    .tool-panel.voice-card .panel-title {
+      color: #4338ca;
+    }
+
+    .tool-panel.ocr-card {
+      border-color: rgba(217, 119, 6, 0.24);
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(255, 255, 255, 0));
+      box-shadow: 0 8px 24px rgba(217, 119, 6, 0.06);
+    }
+
+    .tool-panel.ocr-card::before {
+      background: #f59e0b;
+    }
+
+    .tool-panel.ocr-card .panel-title {
+      color: #92400e;
+    }
+
+    .button.voice-action {
+      background: #4f46e5;
+      border-color: #4f46e5;
+      color: #fff;
+    }
+
+    .button.voice-recording {
+      background: #7c3aed;
+      border-color: #7c3aed;
+      color: #fff;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.16);
+    }
+
+    .voice-capture-box {
+      border: 1px solid rgba(79, 70, 229, 0.18);
+      border-radius: var(--radius);
+      background: rgba(99, 102, 241, 0.07);
+      padding: 10px;
+      margin-top: 10px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .voice-capture-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      font-size: 12px;
+    }
+
+    .voice-capture-label {
+      color: var(--muted);
+      font-weight: 850;
+    }
+
+    .voice-capture-value {
+      color: #4338ca;
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .voice-capture-help {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .button.ocr-action {
+      background: #d97706;
+      border-color: #d97706;
+      color: #fff;
+    }
+
+    .release-line {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .hidden-watermark {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0.01;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: #0f172a;
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      max-width: min(440px, calc(100vw - 40px));
+      font-size: 14px;
+      z-index: 30;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .empty {
+      padding: 34px 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    @media (max-width: 1180px) {
+      .workspace {
+        grid-template-columns: 260px minmax(0, 1fr);
+      }
+
+      .inspector {
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 860px) {
+      .workspace,
+      .inspector {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid,
+      .details-grid,
+      .editor-grid,
+      .inline-editor-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .topbar-actions {
+        justify-content: flex-start;
+      }
+
+      .workspace {
+        padding: 14px;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .prompt-card-title-row {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
-<body>
-  <p><a href="./packages/local-html/index.html">Open FALO Prompt Manager v1.01</a></p>
+<body data-theme="light">
+  <!-- FALO Prompt Manager release marker: v1.01 / Falo x Force Cheng / 2026/6/1 -->
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <h1 class="brand-title">FALO Prompt Manager</h1>
+          <p class="brand-subtitle">模型菜 PWA：Prompt 題庫、OCR、Voice、JSON Connect</p>
+          <p class="release-line">v1.01 · Falo x Force Cheng · 2026/6/1</p>
+        </div>
+        <div class="topbar-actions">
+          <!-- 匯出群組 -->
+          <button class="button" id="exportExcelButton" type="button" style="border-color: #16a34a; color: #15803d; background: #f0fdf4;">📤 匯出 Excel</button>
+          <button class="button" id="exportButton" type="button">📤 匯出 JSON</button>
+          
+          <!-- 匯入群組 -->
+          <button class="button primary" id="importExcelButton" type="button" style="background: #16a34a; border-color: #16a34a; color: #fff;">📥 匯入 Excel</button>
+          <button class="button primary" id="importButton" type="button">📥 匯入 JSON</button>
+          
+          <!-- 其他動作 -->
+          <button class="button" id="resetButton" type="button">🔄 還原範例</button>
+          <button class="button" id="installButton" type="button" disabled>📲 安裝成 PWA</button>
+          
+          <!-- 風格選擇 -->
+          <select class="select" id="themeSelect" aria-label="風格選擇">
+            <option value="light">風格選擇：Light</option>
+            <option value="dark">風格選擇：Dark</option>
+            <option value="warm">風格選擇：Warm</option>
+          </select>
+          
+          <!-- 隱藏的檔案輸入框 -->
+          <input class="file-input" id="fileInput" type="file" accept="application/json,.json">
+          <input class="file-input" id="excelFileInput" type="file" accept=".xlsx,.xls">
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="sidebar">
+        <section class="panel pad">
+          <h2 class="panel-title">分類</h2>
+          <div class="category-list" id="categoryList"></div>
+        </section>
+
+        <section class="panel pad">
+          <h2 class="panel-title">分類管理</h2>
+          <p class="panel-note">調整目前分類。按「保存分類」後才會覆蓋本機題庫。</p>
+          <div class="field-group">
+            <div class="field">
+              <label for="categoryTitleInput">分類名稱</label>
+              <input id="categoryTitleInput" type="text" placeholder="例如：RFP 標案流程">
+            </div>
+            <div class="field">
+              <label for="categoryDescriptionInput">分類說明</label>
+              <textarea id="categoryDescriptionInput" placeholder="這個分類適合放哪些 Prompt？"></textarea>
+            </div>
+          </div>
+          <div class="manager-actions">
+            <button class="button primary" id="saveCategoryButton" type="button">保存分類</button>
+            <button class="button" id="newCategoryButton" type="button">新增分類</button>
+            <button class="button subtle" id="moveCategoryUpButton" type="button">分類上移</button>
+            <button class="button subtle" id="moveCategoryDownButton" type="button">分類下移</button>
+            <button class="button danger" id="deleteCategoryButton" type="button">刪除分類</button>
+          </div>
+        </section>
+
+        <section class="panel pad">
+          <h2 class="panel-title">資料來源</h2>
+          <div class="drop-zone" id="dropZone">
+            <strong id="sourceName">內建模型菜題庫</strong>
+            <p class="panel-note">可拖曳 Prompt Database JSON、舊版分類 JSON，或 Input Material JSON。</p>
+          </div>
+        </section>
+
+        <section class="panel pad" style="background: linear-gradient(135deg, rgba(15, 118, 110, 0.05) 0%, rgba(255, 255, 255, 0) 100%);">
+          <h2 class="panel-title" style="display: flex; align-items: center; gap: 6px;">
+            🔄 資料轉換入口
+          </h2>
+          <p class="panel-note" style="line-height: 1.5; color: var(--muted); margin-bottom: 8px;">
+            本系統支援多軌輸入轉換：
+          </p>
+          <div style="display: grid; gap: 6px; font-size: 12px; color: var(--muted);" id="conversionStatus">
+            <div>📸 <strong>OCR 入口</strong>：紙本與圖片智慧文字識別</div>
+            <div>🎙️ <strong>Voice 入口</strong>：本機語音與口述文字寫入</div>
+            <div>🔌 <strong>JSON Connect</strong>：支援外部結構化資料對接</div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="main">
+        <div class="summary-grid">
+          <section class="panel metric">
+            <span class="metric-value" id="categoryCount">0</span>
+            <span class="metric-label">分類</span>
+          </section>
+          <section class="panel metric">
+            <span class="metric-value" id="promptCount">0</span>
+            <span class="metric-label">Prompt 卡片</span>
+          </section>
+          <section class="panel metric">
+            <span class="metric-value" id="variableCount">0</span>
+            <span class="metric-label">變數</span>
+          </section>
+          <section class="panel metric">
+            <span class="metric-value" id="offlineState">PWA</span>
+            <span class="metric-label">離線載體</span>
+          </section>
+        </div>
+
+        <section class="panel editor-workbench" id="promptEditorPanel" hidden>
+          <div class="editor-workbench-header">
+            <div>
+              <h2 class="panel-title">Prompt 編輯工作台</h2>
+              <p class="panel-note" id="promptEditorHint">閱讀模式中請先按卡片上的「編輯」。</p>
+            </div>
+            <div class="editor-toolbar">
+              <button class="button primary" id="savePromptButton" type="button">保存卡片</button>
+              <button class="button" id="newPromptButton" type="button">新增卡片</button>
+              <button class="button draft" id="copyDraftPromptButton" type="button">複製目前內容</button>
+              <button class="button subtle" id="restorePromptButton" type="button">恢復原文</button>
+              <button class="button subtle" id="exitEditButton" type="button">退出編修</button>
+            </div>
+          </div>
+          <div class="editor-compare-stack">
+            <div class="compare-block editing">
+              <div class="compare-title-row">
+                <h3>草稿編輯</h3>
+                <div class="editor-toolbar">
+                  <button class="button" id="editorVoiceButton" type="button">語音插入</button>
+                  <button class="button subtle" id="editorVoiceStopButton" type="button">停止</button>
+                </div>
+              </div>
+              <p class="panel-note" id="editorVoiceStatus">語音會插入目前游標所在的編輯文字區塊。</p>
+              <div class="field-group">
+                <div class="editor-grid">
+                  <div class="field">
+                    <label for="promptTitleInput">標題</label>
+                    <input id="promptTitleInput" type="text" placeholder="Prompt 卡片標題">
+                  </div>
+                  <div class="field">
+                    <label for="promptStatusInput">狀態</label>
+                    <select id="promptStatusInput">
+                      <option value="draft">草稿</option>
+                      <option value="review">待審</option>
+                      <option value="stable">穩定版</option>
+                      <option value="deprecated">停用</option>
+                    </select>
+                  </div>
+                  <div class="field wide">
+                    <label for="promptDescriptionInput">用途說明</label>
+                    <textarea id="promptDescriptionInput" data-editor-text="true" placeholder="這張卡什麼時候用？"></textarea>
+                  </div>
+                  <div class="field wide">
+                    <label for="promptTextInput">Prompt 內容</label>
+                    <textarea id="promptTextInput" data-editor-text="true" placeholder="可使用 [Client] 或 {{Client}} 這類變數"></textarea>
+                    <div class="insert-row">
+                      <select class="select" id="variableInsertSelect" aria-label="選擇要插入的變數"></select>
+                      <button class="button" id="insertVariableButton" type="button">插入變數</button>
+                    </div>
+                  </div>
+                  <div class="field wide">
+                    <label for="promptTagsInput">標籤</label>
+                    <input id="promptTagsInput" type="text" placeholder="用逗號分隔，例如：RFP, 教學, OCR">
+                    <div class="insert-row">
+                      <select class="select" id="tagInsertSelect" aria-label="選擇要加入的標籤"></select>
+                      <button class="button" id="addTagButton" type="button">加入標籤</button>
+                    </div>
+                  </div>
+                  <div class="field wide">
+                    <label for="promptExpectedInput">預期輸出</label>
+                    <textarea id="promptExpectedInput" data-editor-text="true" placeholder="希望 AI 回傳什麼格式或內容？"></textarea>
+                  </div>
+                  <div class="field wide">
+                    <label for="promptReviewInput">人工檢查點</label>
+                    <textarea id="promptReviewInput" data-editor-text="true" placeholder="一行一個檢查點"></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="promptTargetAIInput">目標 AI</label>
+                    <input id="promptTargetAIInput" type="text" placeholder="例如：ChatGPT / Gemini">
+                  </div>
+                  <div class="field">
+                    <label for="promptVersionInput">版本</label>
+                    <input id="promptVersionInput" type="text" placeholder="例如：0.3">
+                  </div>
+                </div>
+              </div>
+              <div class="manager-actions">
+                <button class="button subtle" id="duplicatePromptButton" type="button">複製卡片</button>
+                <button class="button subtle" id="movePromptUpButton" type="button">卡片上移</button>
+                <button class="button subtle" id="movePromptDownButton" type="button">卡片下移</button>
+                <button class="button danger" id="deletePromptButton" type="button">刪除卡片</button>
+              </div>
+            </div>
+
+            <div class="compare-block">
+              <div class="compare-title-row">
+                <h3>即時預覽</h3>
+                <span class="status" id="savedPromptStatus">尚未選取</span>
+              </div>
+              <p class="panel-note" id="savedPromptMeta">編修時會即時呈現變數代入後的 Prompt。</p>
+              <div class="compare-preview" id="savedPromptPreview">目前沒有編修中的 Prompt 卡片。</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="toolbar">
+            <input class="search-input" id="searchInput" type="search" placeholder="Cmd/Ctrl + K 搜尋標題、說明、標籤、Prompt、輸出或檢查點">
+            <div class="toolbar-actions">
+              <div class="segmented-control" aria-label="Prompt 搜尋範圍">
+                <button class="segment-button active" id="promptSearchScopeCategory" type="button">此分類</button>
+                <button class="segment-button" id="promptSearchScopeAll" type="button">全部</button>
+              </div>
+              <button class="button primary" id="addPromptToolbarButton" type="button">➕ 新增卡片</button>
+              <button class="button" id="copyVisibleButton" type="button">複製第一張</button>
+              <button class="button subtle" id="clearSearchButton" type="button">清除</button>
+            </div>
+          </div>
+          <div class="category-detail" id="categoryDetail"></div>
+          <div class="workflow-strip" id="workflowStrip"></div>
+          <div class="card-grid" id="cardGrid"></div>
+        </section>
+      </section>
+
+      <aside class="inspector">
+        <section class="panel pad tool-panel voice-card">
+          <h2 class="panel-title">Voice 輕量輸入</h2>
+          <div class="field">
+            <label for="voiceTranscript">[Voice_Text]</label>
+            <textarea id="voiceTranscript" placeholder="按「開始聽寫」或手動貼入口述內容"></textarea>
+          </div>
+          <div class="card-actions">
+            <button class="button voice-action" id="voiceButton" type="button">開始聽寫</button>
+            <button class="button subtle" id="clearVoiceButton" type="button">清空</button>
+          </div>
+          <div class="voice-status" id="voiceStatus">Web Speech API：待命。</div>
+          <div class="voice-capture-box" aria-label="語音捕捉狀態">
+            <div class="voice-capture-row">
+              <span class="voice-capture-label">目前模式</span>
+              <span class="voice-capture-value" id="voiceCaptureMode">全域 Voice_Text</span>
+            </div>
+            <div class="voice-capture-row">
+              <span class="voice-capture-label">寫入位置</span>
+              <span class="voice-capture-value" id="voiceCaptureTarget">[Voice_Text]</span>
+            </div>
+            <p class="voice-capture-help" id="voiceCaptureHelp">可按「開始聽寫」寫入 [Voice_Text]；編輯卡片時，先點文字框再按「語音插入」。</p>
+          </div>
+        </section>
+
+        <section class="panel pad tool-panel ocr-card">
+          <h2 class="panel-title" style="display: flex; align-items: center; gap: 6px;">
+            📸 OCR 智慧文字轉換
+          </h2>
+          <p class="panel-note" style="line-height: 1.5; color: var(--muted); margin-bottom: 12px;">
+            獨立的高效影像識別模組，支援截圖、表單與手寫文件的結構化轉換。完成後可快速複製結果回填。
+          </p>
+          <div style="margin-bottom: 14px;">
+            <button class="button ocr-action" id="openOcrWorkbenchButton" type="button" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; border-radius: var(--radius); transition: all 0.2s ease;">
+              ⚡ 開啟 OCR 工作台
+            </button>
+          </div>
+          <p class="panel-note" style="font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4;">
+            💡 支援 PWA 獨立視窗安裝與離線快取，提供最優的影像辨識體驗。
+          </p>
+        </section>
+
+        <section class="panel pad">
+          <h2 class="panel-title">變數控制</h2>
+          <p class="panel-note" id="variableHint">先按卡片上的「使用此卡」，這裡會把該卡需要的變數排到最前面。</p>
+          <div class="variable-toolbar">
+            <div class="segmented-control" aria-label="變數顯示範圍">
+              <button class="segment-button active" data-variable-filter="page" id="variableFilterPageButton" type="button">本頁變數</button>
+              <button class="segment-button" data-variable-filter="all" id="variableFilterAllButton" type="button">全部變數</button>
+              <button class="segment-button" data-variable-filter="issues" id="variableFilterIssuesButton" type="button">問題變數</button>
+            </div>
+            <input class="search-input" id="variableSearchInput" type="search" placeholder="搜尋變數名稱或內容">
+            <div class="toolbar-actions">
+              <button class="button" id="refreshVariablesButton" type="button">重新掃描本卡變數</button>
+              <button class="button" id="newVariableToggleButton" type="button">＋ 新增變數</button>
+            </div>
+            <div class="new-variable-panel" id="newVariablePanel" hidden>
+              <div class="field">
+                <label for="newVariableNameInput">變數名稱</label>
+                <input id="newVariableNameInput" type="text" placeholder="例如：Workshop_Topic">
+              </div>
+              <div class="field">
+                <label for="newVariableValueInput">預設值</label>
+                <input id="newVariableValueInput" type="text" placeholder="例如：模型菜教材">
+              </div>
+              <div class="card-actions">
+                <button class="button primary" id="addVariableButton" type="button">新增</button>
+                <button class="button subtle" id="cancelAddVariableButton" type="button">取消</button>
+              </div>
+            </div>
+          </div>
+          <div class="field-group" id="variableFields"></div>
+        </section>
+
+        <section class="panel pad">
+          <h2 class="panel-title">PWA 狀態</h2>
+          <p class="panel-note" id="pwaStatus">正在檢查 service worker。</p>
+          <p class="panel-note">版本備註：v1.01 / Falo x Force Cheng / 2026/6/1。</p>
+          <p class="panel-note">完整 PWA 驗證請用 localhost 或 HTTPS；file:// 只能看靜態頁。</p>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div class="hidden-watermark" aria-hidden="true" data-release="v1.01" data-brand="Falo x Force Cheng" data-date="2026-06-01">
+    FALO Prompt Manager v1.01 | Falo x Force Cheng | 2026/6/1 | Taiwan | Prompt Asset Management PWA
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const APP_RELEASE = Object.freeze({
+      version: "v1.01",
+      brand: "Falo x Force Cheng",
+      releaseDate: "2026/6/1",
+      geo: "Taiwan",
+      note: "Prompt Asset Management PWA teaching release"
+    });
+    window.APP_RELEASE = APP_RELEASE;
+
+    const STORAGE_KEYS = {
+      database: "falo_prompt_manager_database_v03",
+      variables: "falo_prompt_manager_variables_v03",
+      theme: "falo_prompt_manager_theme_v03",
+      source: "falo_prompt_manager_source_v03"
+    };
+
+    const DEFAULT_DATABASE = [
+      {
+        id: "basic-management",
+        title: "01_基礎 Prompt 管理",
+        description: "用來示範 Prompt 如何被分類、變數化、匯入匯出與備份。",
+        items: [
+          {
+            id: "prompt-asset-explainer",
+            title: "把 Prompt 說成可管理資產",
+            description: "用初學者聽得懂的方式，說明 Prompt 不是一次性文字，而是可管理的工作流資產。",
+            promptText: "請用初學者聽得懂的方式，說明為什麼 Prompt 不只是聊天文字，而是可以被分類、變數化、備份與重複使用的工作流資產。請用三段式：直覺比喻、實務例子、下一步行動。",
+            tags: ["教學", "Prompt Asset", "入門"],
+            status: "stable",
+            variables: [],
+            expectedOutput: "一段可放進教材的說明文字。",
+            humanReviewPoints: ["是否避免過度技術術語", "是否能讓非工程背景理解"]
+          },
+          {
+            id: "model-dish-intro",
+            title: "模型菜概念說明",
+            description: "把 Prompt Card、Workflow、變數、AI Model 用模型菜比喻串起來。",
+            promptText: "請用「模型菜」比喻，說明 Prompt Card 是一道菜、Workflow 是套餐、變數是食材、AI Model 是廚師、人工審查是品管。請產出適合課堂投影片的一頁說明。",
+            tags: ["模型菜", "教學", "Workflow"],
+            status: "stable",
+            variables: [],
+            expectedOutput: "一頁式課堂說明，可轉成投影片。",
+            humanReviewPoints: ["比喻是否清楚", "是否避免把工具講成大型平台"]
+          }
+        ]
+      },
+      {
+        id: "rfp-workflow",
+        title: "02_RFP / 標案工作流",
+        description: "示範 Prompt 如何成為標案工作流中的步驟。",
+        items: [
+          {
+            id: "rfp-checklist",
+            title: "讀取外部 RFP 自動預判 Checklist",
+            description: "讓 AI 協助理解招標書中的剛性要求，先整理出廠商實績、PM 證照、SLA、資安切結等重點。",
+            promptText: "請深度閱讀 [RFP_Path]，自主分析此招標案的合規要求，並以 checklist 形式列出四大合規需求。",
+            tags: ["RFP", "合規", "Phase 1"],
+            status: "stable",
+            variables: ["RFP_Path"],
+            expectedOutput: "四大合規需求 checklist。",
+            humanReviewPoints: ["條款是否漏讀", "是否把建議誤寫成事實", "是否需要回看原始 RFP"]
+          },
+          {
+            id: "sla-warning",
+            title: "SLA 維護響應衝突與內部亮燈",
+            description: "外部要求比內部標準更嚴時，讓 AI 同時產出對外回應與內部風險提醒。",
+            promptText: "請對比外部 [Client] 要求的 [Target_SLA] 緊急維護響應，與公司內部標配的 4 小時響應。請產出：1. 對外可接受的標書改寫；2. 內部成本與資源調度風險提醒。",
+            tags: ["SLA", "治理", "風險"],
+            status: "stable",
+            variables: ["Client", "Target_SLA"],
+            expectedOutput: "對外文字與內部風險提醒各一段。",
+            humanReviewPoints: ["是否承諾過度", "成本風險是否被明確標出"]
+          }
+        ]
+      },
+      {
+        id: "field-memory",
+        title: "03_現場經驗轉 Prompt",
+        description: "將課程案例、現場踩坑與組織記憶轉成可重複使用的提示詞。",
+        items: [
+          {
+            id: "supplier-letter",
+            title: "廠商行前規範函",
+            description: "根據歷史案例生成給施工或協力廠商的行前規範通知。",
+            promptText: "如果下一個專案在 [Location] 舉辦，請根據過去電線固定、動線安全與噪音控管問題，寫一封給廠商的行前規範通知信。語氣需專業、明確、可執行。",
+            tags: ["SOP", "廠商", "現場安全"],
+            status: "stable",
+            variables: ["Location"],
+            expectedOutput: "一封可給廠商的行前規範通知。",
+            humanReviewPoints: ["語氣是否專業", "要求是否具體", "是否需要補上罰則或驗收方式"]
+          }
+        ]
+      },
+      {
+        id: "ocr-transform",
+        title: "04_OCR 資料轉換",
+        description: "OCR 是資料入口：把歷史文件、拍照 idea、手寫文件、截圖轉成可用素材。",
+        items: [
+          {
+            id: "ocr-handwritten-summary",
+            title: "手寫文件轉結構化摘要",
+            description: "把手寫筆記或拍照文件整理成段落、重點與待辦。",
+            promptText: "請將以下 OCR 文字整理成摘要、重點、待辦事項與需要人工確認的模糊處：\n[OCR_Text]",
+            tags: ["OCR", "手寫", "摘要"],
+            status: "stable",
+            variables: ["OCR_Text"],
+            expectedOutput: "摘要、重點、待辦事項、需要人工確認的模糊處。",
+            humanReviewPoints: ["人名是否辨識正確", "日期是否正確", "手寫模糊字是否需要回看原圖"]
+          },
+          {
+            id: "ocr-table-to-json",
+            title: "截圖表格轉 JSON",
+            description: "把圖片或截圖中的表格 OCR 結果轉為可匯入或再加工的 JSON。",
+            promptText: "請將以下 OCR 表格文字轉成乾淨 JSON。若欄位不確定，請用 null 並列出 riskNotes：\n[OCR_Text]",
+            tags: ["OCR", "JSON", "表格"],
+            status: "stable",
+            variables: ["OCR_Text"],
+            expectedOutput: "JSON 資料與 riskNotes。",
+            humanReviewPoints: ["欄位是否錯位", "數字是否辨識錯誤", "是否有漏列"]
+          },
+          {
+            id: "gemini-ocr-image-strategy",
+            title: "Gemini OCR 影像策略檢查",
+            description: "參考 aiocr-pro01 / gemini35-ocr，檢查圖片是否適合送入 Gemini OCR。",
+            promptText: "請根據以下影像 metadata，判斷是否適合送入 Gemini OCR。請檢查：1. 是否需要轉 WebP 768；2. 是否不應放大；3. 是否應改用 PNG standard 或較高解析策略；4. 應記錄哪些 metadata；5. 送出前的人審提醒。請用 JSON + 短說明輸出。\n[Material_JSON]",
+            tags: ["Gemini OCR", "影像策略", "JSON Connect"],
+            status: "draft",
+            variables: ["Material_JSON"],
+            expectedOutput: "影像送出策略建議、metadata 檢查清單、人工審查提醒。",
+            humanReviewPoints: ["是否避免放大小圖", "是否未保存圖片 bytes", "是否確認 API key 不被寫入匯出資料"]
+          }
+        ]
+      },
+      {
+        id: "voice-input",
+        title: "05_Voice 口述輸入",
+        description: "用最輕量 Web Speech API，把口述 idea、課堂即席說明、會議片段轉成 Prompt 素材。",
+        items: [
+          {
+            id: "voice-idea-to-actions",
+            title: "口述 idea 轉任務清單",
+            description: "把臨場口述內容整理成可以追蹤的任務清單。",
+            promptText: "請將以下口述內容整理成：摘要、任務清單、可能風險、下一步建議：\n[Voice_Text]",
+            tags: ["Voice", "口述", "任務"],
+            status: "stable",
+            variables: ["Voice_Text"],
+            expectedOutput: "摘要、任務、負責人或待補資訊、下一步。",
+            humanReviewPoints: ["語音辨識是否誤聽", "任務是否過度推論", "是否需要補充時間或負責人"]
+          },
+          {
+            id: "voice-class-note",
+            title: "課堂即席筆記整理",
+            description: "把老師口頭補充或課堂討論整理成教材補充筆記。",
+            promptText: "請把以下課堂口述內容整理成：核心觀念、例子、可放入 README 的段落、可放入投影片的條列：\n[Voice_Text]",
+            tags: ["Voice", "課堂", "筆記"],
+            status: "stable",
+            variables: ["Voice_Text"],
+            expectedOutput: "核心觀念、例子、README 段落、投影片條列。",
+            humanReviewPoints: ["是否保留老師原意", "是否需要補上下文", "是否過度美化"]
+          }
+        ]
+      },
+      {
+        id: "json-connect",
+        title: "06_JSON Connect 匯入整理",
+        description: "讓 Gemini Gem、ChatGPT GPTs 或外部 OCR 小工具輸出標準 JSON，再接進 Prompt Manager。",
+        items: [
+          {
+            id: "input-material-json-cleanup",
+            title: "Input Material JSON 清理",
+            description: "把外部工具輸出的素材 JSON 整理成系統可讀格式。",
+            promptText: "請檢查以下 Input Material JSON，修正欄位命名、補上 suggestedTags，並列出需要人工確認的地方：\n[Material_JSON]",
+            tags: ["JSON Connect", "Input Material", "整理"],
+            status: "stable",
+            variables: ["Material_JSON"],
+            expectedOutput: "清理後 JSON 與人工確認清單。",
+            humanReviewPoints: ["JSON 是否有效", "來源是否標清楚", "是否混入敏感資料"]
+          },
+          {
+            id: "material-to-variables",
+            title: "素材轉 Prompt 變數",
+            description: "從 OCR 或語音素材中抽出可放進 Prompt Manager 的變數。",
+            promptText: "請從以下素材中抽出可用變數，輸出 JSON：Topic、Client、Owner、Date、Location、Voice_Text、OCR_Text。若沒有資料請用空字串：\n[Material_JSON]",
+            tags: ["JSON Connect", "變數", "資料轉換"],
+            status: "stable",
+            variables: ["Material_JSON"],
+            expectedOutput: "可貼回 Prompt Manager 的 variables JSON。",
+            humanReviewPoints: ["是否把推測內容當成事實", "欄位是否有來源依據"]
+          }
+        ]
+      }
+    ];
+
+    const DEFAULT_VARIABLES = {
+      PM: "Sophia",
+      Client: "國家檔案數位發展委員會",
+      Target_SLA: "2 小時",
+      Location: "台西",
+      RFP_Path: "/星河_2026政府智慧文件標案/RFP_招標書規範.pdf",
+      OCR_Text: "",
+      Voice_Text: "",
+      Material_JSON: "",
+      Topic: "Prompt Manager 教材版"
+    };
+
+    let database = normalizeDatabase(loadStoredJson(STORAGE_KEYS.database, DEFAULT_DATABASE));
+    let savedVariables = { ...DEFAULT_VARIABLES, ...loadStoredJson(STORAGE_KEYS.variables, DEFAULT_VARIABLES) };
+    let variables = { ...savedVariables };
+    let activeCategoryId = database[0] ? database[0].id : "";
+    let activePromptId = "";
+    let editingPromptId = "";
+    let promptDraft = null;
+    let selectedVariableKey = "";
+    let selectedTagValue = "";
+    let visibleCards = [];
+    let variableFilterMode = "page";
+    let variableSearchQuery = "";
+    let variableHintNote = "";
+    let variableRenewTimer = null;
+    let promptSearchScope = "category";
+    let deferredInstallPrompt = null;
+    let recognition = null;
+    let isListening = false;
+    let voiceMode = "global";
+    let activeEditorTextInput = null;
+    let sourceName = localStorage.getItem(STORAGE_KEYS.source) || "內建模型菜題庫";
+
+    const els = {
+      categoryList: document.getElementById("categoryList"),
+      cardGrid: document.getElementById("cardGrid"),
+      categoryDetail: document.getElementById("categoryDetail"),
+      workflowStrip: document.getElementById("workflowStrip"),
+      variableHint: document.getElementById("variableHint"),
+      variableFields: document.getElementById("variableFields"),
+      categoryCount: document.getElementById("categoryCount"),
+      promptCount: document.getElementById("promptCount"),
+      variableCount: document.getElementById("variableCount"),
+      offlineState: document.getElementById("offlineState"),
+      searchInput: document.getElementById("searchInput"),
+      importButton: document.getElementById("importButton"),
+      exportButton: document.getElementById("exportButton"),
+      exportExcelButton: document.getElementById("exportExcelButton"),
+      importExcelButton: document.getElementById("importExcelButton"),
+      fileInput: document.getElementById("fileInput"),
+      excelFileInput: document.getElementById("excelFileInput"),
+      resetButton: document.getElementById("resetButton"),
+      installButton: document.getElementById("installButton"),
+      themeSelect: document.getElementById("themeSelect"),
+      dropZone: document.getElementById("dropZone"),
+      sourceName: document.getElementById("sourceName"),
+      toast: document.getElementById("toast"),
+      copyVisibleButton: document.getElementById("copyVisibleButton"),
+      addPromptToolbarButton: document.getElementById("addPromptToolbarButton"),
+      clearSearchButton: document.getElementById("clearSearchButton"),
+      promptSearchScopeCategory: document.getElementById("promptSearchScopeCategory"),
+      promptSearchScopeAll: document.getElementById("promptSearchScopeAll"),
+      voiceButton: document.getElementById("voiceButton"),
+      clearVoiceButton: document.getElementById("clearVoiceButton"),
+      voiceTranscript: document.getElementById("voiceTranscript"),
+      voiceStatus: document.getElementById("voiceStatus"),
+      voiceCaptureMode: document.getElementById("voiceCaptureMode"),
+      voiceCaptureTarget: document.getElementById("voiceCaptureTarget"),
+      voiceCaptureHelp: document.getElementById("voiceCaptureHelp"),
+      openOcrWorkbenchButton: document.getElementById("openOcrWorkbenchButton"),
+      pwaStatus: document.getElementById("pwaStatus"),
+      conversionStatus: document.getElementById("conversionStatus"),
+      variableSearchInput: document.getElementById("variableSearchInput"),
+      variableFilterPageButton: document.getElementById("variableFilterPageButton"),
+      variableFilterAllButton: document.getElementById("variableFilterAllButton"),
+      variableFilterIssuesButton: document.getElementById("variableFilterIssuesButton"),
+      refreshVariablesButton: document.getElementById("refreshVariablesButton"),
+      newVariableToggleButton: document.getElementById("newVariableToggleButton"),
+      newVariablePanel: document.getElementById("newVariablePanel"),
+      newVariableNameInput: document.getElementById("newVariableNameInput"),
+      newVariableValueInput: document.getElementById("newVariableValueInput"),
+      addVariableButton: document.getElementById("addVariableButton"),
+      cancelAddVariableButton: document.getElementById("cancelAddVariableButton")
+    };
+
+    Object.assign(els, {
+      categoryTitleInput: document.getElementById("categoryTitleInput"),
+      categoryDescriptionInput: document.getElementById("categoryDescriptionInput"),
+      saveCategoryButton: document.getElementById("saveCategoryButton"),
+      newCategoryButton: document.getElementById("newCategoryButton"),
+      moveCategoryUpButton: document.getElementById("moveCategoryUpButton"),
+      moveCategoryDownButton: document.getElementById("moveCategoryDownButton"),
+      deleteCategoryButton: document.getElementById("deleteCategoryButton"),
+      promptEditorPanel: document.getElementById("promptEditorPanel"),
+      promptEditorHint: document.getElementById("promptEditorHint"),
+      savedPromptStatus: document.getElementById("savedPromptStatus"),
+      savedPromptMeta: document.getElementById("savedPromptMeta"),
+      savedPromptPreview: document.getElementById("savedPromptPreview"),
+      editorVoiceButton: document.getElementById("editorVoiceButton"),
+      editorVoiceStopButton: document.getElementById("editorVoiceStopButton"),
+      editorVoiceStatus: document.getElementById("editorVoiceStatus"),
+      promptTitleInput: document.getElementById("promptTitleInput"),
+      promptStatusInput: document.getElementById("promptStatusInput"),
+      promptDescriptionInput: document.getElementById("promptDescriptionInput"),
+      promptTextInput: document.getElementById("promptTextInput"),
+      variableInsertSelect: document.getElementById("variableInsertSelect"),
+      insertVariableButton: document.getElementById("insertVariableButton"),
+      promptTagsInput: document.getElementById("promptTagsInput"),
+      tagInsertSelect: document.getElementById("tagInsertSelect"),
+      addTagButton: document.getElementById("addTagButton"),
+      promptExpectedInput: document.getElementById("promptExpectedInput"),
+      promptReviewInput: document.getElementById("promptReviewInput"),
+      promptTargetAIInput: document.getElementById("promptTargetAIInput"),
+      promptVersionInput: document.getElementById("promptVersionInput"),
+      savePromptButton: document.getElementById("savePromptButton"),
+      newPromptButton: document.getElementById("newPromptButton"),
+      copyDraftPromptButton: document.getElementById("copyDraftPromptButton"),
+      restorePromptButton: document.getElementById("restorePromptButton"),
+      exitEditButton: document.getElementById("exitEditButton"),
+      duplicatePromptButton: document.getElementById("duplicatePromptButton"),
+      movePromptUpButton: document.getElementById("movePromptUpButton"),
+      movePromptDownButton: document.getElementById("movePromptDownButton"),
+      deletePromptButton: document.getElementById("deletePromptButton")
+    });
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function loadStoredJson(key, fallback) {
+      try {
+        const stored = localStorage.getItem(key);
+        return stored ? JSON.parse(stored) : clone(fallback);
+      } catch (error) {
+        return clone(fallback);
+      }
+    }
+
+    function saveState(options = {}) {
+      localStorage.setItem(STORAGE_KEYS.database, JSON.stringify(database));
+      if (options.variables) {
+        savedVariables = { ...variables };
+        localStorage.setItem(STORAGE_KEYS.variables, JSON.stringify(savedVariables));
+      }
+      localStorage.setItem(STORAGE_KEYS.source, sourceName);
+    }
+
+    function saveVariable(key) {
+      savedVariables[key] = variables[key] || "";
+      localStorage.setItem(STORAGE_KEYS.variables, JSON.stringify(savedVariables));
+      showToast(`[${key}] 已確認保存。`);
+      renderVariables();
+      renderCards();
+    }
+
+    function addVariableFromPanel() {
+      const key = els.newVariableNameInput.value.trim();
+      const value = els.newVariableValueInput.value.trim();
+      if (!key) {
+        showToast("請輸入變數名稱。");
+        els.newVariableNameInput.focus();
+        return;
+      }
+      if (!/^[\p{L}][\p{L}\p{N}_-]*$/u.test(key)) {
+        showToast("變數名稱建議用文字、數字、底線或連字號，且不要用空白。");
+        els.newVariableNameInput.focus();
+        return;
+      }
+      if (key in variables || key in savedVariables) {
+        showToast(`[${key}] 已存在。`);
+        els.newVariableNameInput.focus();
+        return;
+      }
+
+      variables[key] = value;
+      savedVariables[key] = value;
+      localStorage.setItem(STORAGE_KEYS.variables, JSON.stringify(savedVariables));
+      selectedVariableKey = key;
+      variableFilterMode = "all";
+      variableSearchQuery = key;
+      els.variableSearchInput.value = key;
+      els.newVariableNameInput.value = "";
+      els.newVariableValueInput.value = "";
+      els.newVariablePanel.hidden = true;
+      renderMetrics();
+      renderVariables();
+      renderCards();
+      renderInsertPickers();
+      showToast(`已新增變數：[${key}]。`);
+    }
+
+    function isVariableDirty(key) {
+      return (variables[key] || "") !== (savedVariables[key] || "");
+    }
+
+    function slugify(value, fallback) {
+      const slug = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      return slug || fallback;
+    }
+
+    function uniqueId(base, existingIds) {
+      const ids = new Set(existingIds);
+      const root = slugify(base, "item");
+      if (!ids.has(root)) return root;
+      let count = 2;
+      while (ids.has(`${root}-${count}`)) count += 1;
+      return `${root}-${count}`;
+    }
+
+    function normalizeDatabase(input) {
+      if (Array.isArray(input)) {
+        return input.map(normalizeCategory);
+      }
+
+      if (input && typeof input === "object" && Array.isArray(input.promptCategories) && Array.isArray(input.prompts)) {
+        return input.promptCategories.map((category, index) => {
+          const normalized = normalizeCategory({ ...category, items: [] }, index);
+          normalized.items = input.prompts
+            .filter((prompt) => prompt.categoryId === category.id || prompt.category === category.id || prompt.categoryTitle === category.title)
+            .map(normalizePrompt);
+          return normalized;
+        });
+      }
+
+      if (input && typeof input === "object") {
+        return Object.entries(input)
+          .filter(([, items]) => Array.isArray(items))
+          .map(([title, items], index) => normalizeCategory({ id: title, title, items }, index));
+      }
+
+      throw new Error("JSON 必須是 Prompt Database、category array，或舊版 category object。");
+    }
+
+    function normalizeCategory(category, index) {
+      return {
+        id: slugify(category.id || category.title, `category-${index + 1}`),
+        title: String(category.title || `分類 ${index + 1}`),
+        description: String(category.description || ""),
+        items: Array.isArray(category.items) ? category.items.map(normalizePrompt) : []
+      };
+    }
+
+    function normalizePrompt(prompt, index) {
+      const promptText = String(prompt.promptText || "");
+      return {
+        id: slugify(prompt.id || prompt.title, `prompt-${index + 1}`),
+        title: String(prompt.title || `Prompt ${index + 1}`),
+        description: String(prompt.description || ""),
+        promptText,
+        tags: Array.isArray(prompt.tags)
+          ? prompt.tags.map(String)
+          : String(prompt.tags || "").split(",").map((tag) => tag.trim()).filter(Boolean),
+        status: ["stable", "draft", "review", "deprecated"].includes(prompt.status)
+          ? prompt.status
+          : "stable",
+        variables: Array.isArray(prompt.variables) ? prompt.variables.map(String) : extractVariables(promptText),
+        expectedOutput: String(prompt.expectedOutput || ""),
+        humanReviewPoints: Array.isArray(prompt.humanReviewPoints)
+          ? prompt.humanReviewPoints.map(String)
+          : [],
+        targetAI: String(prompt.targetAI || ""),
+        role: String(prompt.role || ""),
+        course: String(prompt.course || ""),
+        version: String(prompt.version || ""),
+        source: String(prompt.source || "")
+      };
+    }
+
+    function extractVariables(text) {
+      const matches = [...String(text).matchAll(/(\[([A-Za-z0-9_]+)\]|\{\{([A-Za-z0-9_]+)\}\})/g)];
+      return [...new Set(matches.map((match) => match[2] || match[3]))];
+    }
+
+    function getAllPrompts() {
+      return database.flatMap((category) => category.items);
+    }
+
+    function getActiveCategory() {
+      return database.find((item) => item.id === activeCategoryId) || database[0] || null;
+    }
+
+    function getActivePrompt() {
+      return getAllPrompts().find((prompt) => prompt.id === activePromptId) || null;
+    }
+
+    function getEditingPrompt() {
+      return getAllPrompts().find((prompt) => prompt.id === editingPromptId) || null;
+    }
+
+    function getPromptLocation(promptId) {
+      for (const category of database) {
+        const index = category.items.findIndex((prompt) => prompt.id === promptId);
+        if (index >= 0) return { category, index, prompt: category.items[index] };
+      }
+      return null;
+    }
+
+    function getPromptCategoryTitle(promptId) {
+      return getPromptLocation(promptId)?.category.title || "";
+    }
+
+    function parseCommaList(value) {
+      return String(value || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function parseLineList(value) {
+      return String(value || "")
+        .split(/\r?\n/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function getPromptPool() {
+      return promptDraft ? [...getAllPrompts(), promptDraft] : getAllPrompts();
+    }
+
+    function getKnownVariableKeys() {
+      const keys = new Set(Object.keys(DEFAULT_VARIABLES));
+      Object.keys(variables).forEach((key) => keys.add(key));
+      getPromptPool().forEach((prompt) => {
+        prompt.variables.forEach((key) => keys.add(key));
+        extractVariables(prompt.promptText).forEach((key) => keys.add(key));
+      });
+      return [...keys].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+    }
+
+    function getKnownTags() {
+      const tags = new Set();
+      getPromptPool().forEach((prompt) => {
+        prompt.tags.forEach((tag) => tags.add(tag));
+      });
+      parseCommaList(els.promptTagsInput.value).forEach((tag) => tags.add(tag));
+      return [...tags].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+    }
+
+    function setSelectOptions(select, values, placeholder, selectedValue = "") {
+      select.replaceChildren();
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = placeholder;
+      select.append(empty);
+      values.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.append(option);
+      });
+      if (selectedValue && values.includes(selectedValue)) select.value = selectedValue;
+      select.disabled = values.length === 0;
+    }
+
+    function renderInsertPickers() {
+      setSelectOptions(els.variableInsertSelect, getKnownVariableKeys(), "選擇變數", selectedVariableKey);
+      setSelectOptions(els.tagInsertSelect, getKnownTags(), "選擇標籤", selectedTagValue);
+      const hasPrompt = Boolean(getEditingPrompt());
+      els.variableInsertSelect.disabled = !hasPrompt || els.variableInsertSelect.options.length <= 1;
+      els.tagInsertSelect.disabled = !hasPrompt || els.tagInsertSelect.options.length <= 1;
+    }
+
+    function insertTextAtCursor(input, text) {
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? input.value.length;
+      input.value = `${input.value.slice(0, start)}${text}${input.value.slice(end)}`;
+      const nextPosition = start + text.length;
+      input.focus();
+      input.setSelectionRange(nextPosition, nextPosition);
+    }
+
+    function insertVariableToken() {
+      const key = els.variableInsertSelect.value || selectedVariableKey;
+      if (!key) {
+        showToast("請先選擇要插入的變數。");
+        return;
+      }
+      selectedVariableKey = key;
+      insertTextAtCursor(els.promptTextInput, `[${key}]`);
+      updatePromptDraftFromEditorFull();
+      showToast(`已插入變數 [${key}]。`);
+    }
+
+    function addSelectedTag() {
+      const tag = els.tagInsertSelect.value || selectedTagValue;
+      if (!tag) {
+        showToast("請先選擇要加入的標籤。");
+        return;
+      }
+      selectedTagValue = tag;
+      const tags = parseCommaList(els.promptTagsInput.value);
+      if (!tags.includes(tag)) tags.push(tag);
+      els.promptTagsInput.value = tags.join(", ");
+      updatePromptDraftFromEditorFull();
+      showToast(`已加入標籤：${tag}。`);
+    }
+
+    function getActiveEditorTextInput() {
+      if (activeEditorTextInput && !activeEditorTextInput.disabled) return activeEditorTextInput;
+      return els.promptTextInput;
+    }
+
+    function getActiveEditorLabel() {
+      const input = getActiveEditorTextInput();
+      const inlineTitle = input.closest(".inline-editor")?.querySelector(".inline-editor-title")?.textContent;
+      const fieldLabel = input.previousElementSibling?.textContent;
+      return inlineTitle || fieldLabel || "目前游標所在欄位";
+    }
+
+    function setVoiceUiState(state, detail = "") {
+      const isRecording = state === "recording";
+      const isEditor = voiceMode === "editor";
+      const targetLabel = isEditor ? getActiveEditorLabel() : "[Voice_Text]";
+
+      els.voiceButton.classList.toggle("voice-recording", isRecording && !isEditor);
+      els.editorVoiceButton.classList.toggle("voice-recording", isRecording && isEditor);
+      document.querySelectorAll("[data-inline-voice-button]").forEach((button) => {
+        button.classList.toggle("voice-recording", isRecording && isEditor);
+        button.textContent = isRecording && isEditor ? "聽寫中" : "語音插入";
+      });
+
+      els.voiceCaptureMode.textContent = isEditor ? "編輯區語音插入" : "全域 Voice_Text";
+      els.voiceCaptureTarget.textContent = targetLabel;
+      if (isRecording) {
+        els.voiceCaptureHelp.textContent = isEditor
+          ? `正在聽寫，文字會插入「${targetLabel}」。說完請按「停止語音」結束。`
+          : "正在聽寫，文字會寫入 [Voice_Text]。說完請按「停止聽寫」。";
+      } else if (state === "error") {
+        els.voiceCaptureHelp.textContent = detail || "語音辨識發生錯誤，請檢查瀏覽器權限與麥克風。";
+      } else {
+        els.voiceCaptureHelp.textContent = "可按「開始聽寫」寫入 [Voice_Text]；編輯卡片時，先點文字框再按「語音插入」。";
+      }
+    }
+
+    function insertIntoActiveEditor(text) {
+      const input = getActiveEditorTextInput();
+      const prefix = input.value && !input.value.endsWith("\n") ? "\n" : "";
+      insertTextAtCursor(input, `${prefix}${text.trim()}`);
+      if (input.dataset.draftField) {
+        updatePromptDraftField(input.dataset.draftField, input.value);
+        renderVariables();
+        renderCards();
+      } else {
+        updatePromptDraftFromEditorFull();
+      }
+    }
+
+    function getVariableKeySignature(keys) {
+      return [...new Set(keys)].sort().join("|");
+    }
+
+    function describeNewVariables(beforeKeys, afterKeys) {
+      const before = new Set(beforeKeys);
+      return [...new Set(afterKeys)].filter((key) => !before.has(key));
+    }
+
+    function scheduleVariableRenew(newKeys = []) {
+      window.clearTimeout(variableRenewTimer);
+      variableRenewTimer = window.setTimeout(() => {
+        ensureKnownVariables();
+        if (newKeys.length) {
+          variableHintNote = `已偵測到新變數：${newKeys.map((key) => `[${key}]`).join("、")}。`;
+        }
+        renderVariables();
+        renderInsertPickers();
+      }, 180);
+    }
+
+    function refreshActivePromptVariables(manual = false) {
+      const targetPrompt = promptDraft || getActivePrompt();
+      if (!targetPrompt) {
+        showToast("請先使用或編輯一張 Prompt 卡片。");
+        return;
+      }
+
+      const nextVariables = extractVariables(targetPrompt.promptText);
+      if (promptDraft) {
+        promptDraft = normalizePrompt({ ...promptDraft, variables: nextVariables });
+      } else {
+        targetPrompt.variables = nextVariables;
+        saveState();
+      }
+
+      variableFilterMode = "page";
+      variableHintNote = manual
+        ? `已重新掃描本卡變數：${nextVariables.map((key) => `[${key}]`).join("、") || "無變數"}。`
+        : variableHintNote;
+      ensureKnownVariables();
+      renderVariables();
+      renderCards();
+      renderInsertPickers();
+      if (manual) showToast("已重新掃描本卡變數。");
+    }
+
+    function updatePromptDraftField(field, value) {
+      const original = getEditingPrompt();
+      if (!original || !promptDraft) return;
+      const previousVariables = [...promptDraft.variables];
+
+      const nextDraft = {
+        ...promptDraft,
+        [field]: value
+      };
+      if (field === "promptText") {
+        nextDraft.variables = extractVariables(value);
+      }
+      if (field === "tags") {
+        nextDraft.tags = Array.isArray(value) ? value : parseCommaList(value);
+      }
+      if (field === "humanReviewPoints") {
+        nextDraft.humanReviewPoints = Array.isArray(value) ? value : parseLineList(value);
+      }
+
+      promptDraft = normalizePrompt(nextDraft);
+      ensureKnownVariables();
+      renderLivePromptPreview(promptDraft);
+      renderPromptEditorState();
+      if (field === "promptText" && getVariableKeySignature(previousVariables) !== getVariableKeySignature(promptDraft.variables)) {
+        scheduleVariableRenew(describeNewVariables(previousVariables, promptDraft.variables));
+      }
+    }
+
+    function saveCurrentPromptDraft() {
+      const location = getPromptLocation(editingPromptId);
+      if (!location || !promptDraft) return;
+      const nextPrompt = normalizePrompt(promptDraft);
+      if (!nextPrompt.title.trim() || !nextPrompt.promptText.trim()) {
+        showToast("標題與 Prompt 內容不能空白。");
+        return;
+      }
+      location.category.items[location.index] = nextPrompt;
+      activePromptId = nextPrompt.id;
+      editingPromptId = nextPrompt.id;
+      promptDraft = clone(nextPrompt);
+      ensureKnownVariables();
+      saveState();
+      render();
+      showToast("Prompt 卡片已保存。");
+    }
+
+    function addDraftTag(tag) {
+      if (!promptDraft || !tag) return;
+      const tags = [...promptDraft.tags];
+      if (!tags.includes(tag)) tags.push(tag);
+      updatePromptDraftField("tags", tags);
+      render();
+    }
+
+    function removeDraftTag(tag) {
+      if (!promptDraft || !tag) return;
+      updatePromptDraftField("tags", promptDraft.tags.filter((item) => item !== tag));
+      render();
+    }
+
+    function startEditingPrompt(prompt) {
+      if (!prompt) return;
+      activePromptId = prompt.id;
+      editingPromptId = prompt.id;
+      promptDraft = clone(prompt);
+      render();
+      window.setTimeout(() => {
+        document.querySelector(".prompt-card.editing-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 0);
+    }
+
+    function selectPromptForUse(prompt) {
+      if (!prompt) return;
+      activePromptId = prompt.id;
+      renderVariables();
+      renderCards();
+    }
+
+    function restorePromptDraft() {
+      const original = getEditingPrompt();
+      if (!original) return;
+      promptDraft = clone(original);
+      render();
+      showToast("已恢復為目前保存版。");
+    }
+
+    function exitEditMode() {
+      editingPromptId = "";
+      promptDraft = null;
+      render();
+      showToast("已退出編修模式。");
+    }
+
+    function readPromptDraftFromEditor(existingPrompt, options = {}) {
+      const title = els.promptTitleInput.value.trim();
+      const promptText = els.promptTextInput.value.trim();
+      if (options.requireValid) {
+        if (!title) {
+          showToast("Prompt 標題不能空白。");
+          els.promptTitleInput.focus();
+          return null;
+        }
+        if (!promptText) {
+          showToast("Prompt 內容不能空白。");
+          els.promptTextInput.focus();
+          return null;
+        }
+      }
+
+      return normalizePrompt({
+        id: existingPrompt ? existingPrompt.id : undefined,
+        title: title || "未命名草稿",
+        description: els.promptDescriptionInput.value.trim(),
+        promptText: promptText || "請輸入 Prompt 內容。",
+        tags: parseCommaList(els.promptTagsInput.value),
+        status: els.promptStatusInput.value,
+        variables: extractVariables(promptText),
+        expectedOutput: els.promptExpectedInput.value.trim(),
+        humanReviewPoints: parseLineList(els.promptReviewInput.value),
+        targetAI: els.promptTargetAIInput.value.trim(),
+        version: els.promptVersionInput.value.trim(),
+        source: existingPrompt ? existingPrompt.source : sourceName
+      });
+    }
+
+    function isPromptDraftDirty() {
+      const original = getEditingPrompt();
+      if (!original || !promptDraft) return false;
+      return JSON.stringify(normalizePrompt(original)) !== JSON.stringify(normalizePrompt(promptDraft));
+    }
+
+    function getDisplayPrompt(prompt) {
+      if (prompt.id === editingPromptId && promptDraft) {
+        return promptDraft;
+      }
+      return prompt;
+    }
+
+    function getActiveVariableKeys() {
+      const activePrompt = getActivePrompt();
+      return activePrompt ? getDisplayPrompt(activePrompt).variables : [];
+    }
+
+    function getVariableIssueKeys(keys = getKnownVariableKeys()) {
+      const activeKeys = getActiveVariableKeys();
+      const scopedKeys = variableFilterMode === "all" ? keys : activeKeys;
+      return [...new Set(scopedKeys)].filter((key) => !(key in variables) || !String(variables[key] || "").trim());
+    }
+
+    function getVariableStatus(key) {
+      if (!(key in variables)) return "missing";
+      if (!String(variables[key] || "").trim()) return "empty";
+      return "ready";
+    }
+
+    function getVariableEntriesForDisplay() {
+      const activeKeys = getActiveVariableKeys();
+      const allKeys = getKnownVariableKeys();
+      let orderedKeys = [];
+
+      if (variableFilterMode === "all") {
+        orderedKeys = [
+          ...activeKeys,
+          ...allKeys.filter((key) => !activeKeys.includes(key))
+        ];
+      } else if (variableFilterMode === "issues") {
+        orderedKeys = getVariableIssueKeys(allKeys);
+      } else {
+        orderedKeys = activeKeys;
+      }
+
+      const query = variableSearchQuery.trim().toLowerCase();
+      const uniqueKeys = [...new Set(orderedKeys)];
+      return uniqueKeys
+        .filter((key) => {
+          if (!query) return true;
+          return key.toLowerCase().includes(query) || String(variables[key] || "").toLowerCase().includes(query);
+        })
+        .map((key) => [key, variables[key] || ""]);
+    }
+
+    function setVariableFilterMode(mode) {
+      variableFilterMode = mode;
+      renderVariables();
+    }
+
+    function setPromptSearchScope(scope) {
+      promptSearchScope = scope;
+      renderCards();
+    }
+
+    function renderMetrics() {
+      els.categoryCount.textContent = String(database.length);
+      els.promptCount.textContent = String(getAllPrompts().length);
+      els.variableCount.textContent = String(Object.keys(variables).length);
+      els.offlineState.textContent = navigator.onLine ? "Online" : "Offline";
+    }
+
+    function renderCategories() {
+      els.categoryList.replaceChildren();
+
+      database.forEach((category, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `category-button ${category.id === activeCategoryId ? "active" : ""}`;
+        button.addEventListener("click", () => {
+          activeCategoryId = category.id;
+          activePromptId = "";
+          editingPromptId = "";
+          promptDraft = null;
+          render();
+        });
+
+        const title = document.createElement("span");
+        title.textContent = category.title;
+
+        const count = document.createElement("span");
+        count.className = "count-pill";
+        count.textContent = String(category.items.length);
+
+        button.append(title, count);
+        button.dataset.index = String(index + 1);
+        els.categoryList.append(button);
+      });
+    }
+
+    function renderVariables() {
+      els.variableFields.replaceChildren();
+      ensureKnownVariables();
+      const activePrompt = getActivePrompt();
+      const activeKeys = getActiveVariableKeys();
+      const issueKeys = getVariableIssueKeys();
+      const modeLabels = {
+        page: "本頁變數",
+        all: "全部變數",
+        issues: "問題變數"
+      };
+      [
+        [els.variableFilterPageButton, "page"],
+        [els.variableFilterAllButton, "all"],
+        [els.variableFilterIssuesButton, "issues"]
+      ].forEach(([button, mode]) => {
+        button.classList.toggle("active", variableFilterMode === mode);
+      });
+      if (activePrompt) {
+        const displayPrompt = getDisplayPrompt(activePrompt);
+        const issueText = issueKeys.length ? `目前有 ${issueKeys.length} 個問題變數。` : "目前沒有問題變數。";
+        els.variableHint.textContent = `目前使用：${displayPrompt.title}。顯示：${modeLabels[variableFilterMode]}。這張卡會用到：${displayPrompt.variables.map((key) => `[${key}]`).join("、") || "無變數"}。${issueText}${variableHintNote ? ` ${variableHintNote}` : ""}`;
+      } else {
+        els.variableHint.textContent = `顯示：${modeLabels[variableFilterMode]}。先按卡片上的「使用此卡」，這裡會把該卡需要的變數排到最前面。${variableHintNote ? ` ${variableHintNote}` : ""}`;
+      }
+
+      const entries = getVariableEntriesForDisplay();
+      if (entries.length === 0) {
+        const message = variableFilterMode === "page" && activeKeys.length === 0
+          ? "這張卡目前沒有使用變數。"
+          : variableFilterMode === "issues"
+            ? "目前沒有需要處理的問題變數。"
+            : "沒有符合搜尋條件的變數。";
+        els.variableFields.append(emptyNode(message));
+        return;
+      }
+
+      entries.forEach(([key, value]) => {
+        const field = document.createElement("div");
+        field.className = "field";
+
+        const label = document.createElement("label");
+        label.htmlFor = `var-${key}`;
+        const variableStatus = getVariableStatus(key);
+        const statusText = {
+          ready: "",
+          empty: "（未填）",
+          missing: "（不存在）"
+        }[variableStatus];
+        label.textContent = `[${key}] ${statusText}`;
+
+        const input = ["OCR_Text", "Voice_Text", "Material_JSON"].includes(key)
+          ? document.createElement("textarea")
+          : document.createElement("input");
+        input.id = `var-${key}`;
+        input.value = value;
+        const saveRow = document.createElement("div");
+        saveRow.className = "field-save-row";
+
+        const state = document.createElement("span");
+        state.className = `field-state ${isVariableDirty(key) ? "dirty" : ""}`;
+        state.textContent = variableStatus === "empty"
+          ? "未填值"
+          : isVariableDirty(key) ? "未保存變更" : "已保存";
+
+        const saveButton = document.createElement("button");
+        saveButton.type = "button";
+        saveButton.className = "button subtle";
+        saveButton.textContent = "確認保存";
+        saveButton.disabled = !isVariableDirty(key);
+        saveButton.addEventListener("click", () => saveVariable(key));
+
+        input.addEventListener("input", () => {
+          variables[key] = input.value;
+          syncSpecialInputsFromVariables(false);
+          const dirty = isVariableDirty(key);
+          state.className = `field-state ${dirty ? "dirty" : ""}`;
+          state.textContent = dirty ? "未保存變更" : "已保存";
+          saveButton.disabled = !dirty;
+          renderCards();
+          if (promptDraft) renderLivePromptPreview(promptDraft);
+        });
+
+        saveRow.append(state, saveButton);
+        field.append(label, input, saveRow);
+        els.variableFields.append(field);
+      });
+    }
+
+    function ensureKnownVariables() {
+      const prompts = promptDraft ? [...getAllPrompts(), promptDraft] : getAllPrompts();
+      prompts.forEach((prompt) => {
+        prompt.variables.forEach((key) => {
+          if (!(key in variables)) variables[key] = "";
+          if (!(key in savedVariables)) savedVariables[key] = "";
+        });
+      });
+    }
+
+    function renderCategoryDetail(category) {
+      els.categoryDetail.replaceChildren();
+
+      const title = document.createElement("h2");
+      title.textContent = category ? category.title : "沒有分類";
+
+      const description = document.createElement("p");
+      description.textContent = category ? category.description || "此分類尚未填寫說明。" : "請匯入有效資料。";
+
+      els.categoryDetail.append(title, description);
+    }
+
+    function renderCategoryEditor(category) {
+      const hasCategory = Boolean(category);
+      els.categoryTitleInput.disabled = !hasCategory;
+      els.categoryDescriptionInput.disabled = !hasCategory;
+      els.saveCategoryButton.disabled = !hasCategory;
+      els.deleteCategoryButton.disabled = !hasCategory || database.length <= 1;
+
+      const index = category ? database.findIndex((item) => item.id === category.id) : -1;
+      els.moveCategoryUpButton.disabled = index <= 0;
+      els.moveCategoryDownButton.disabled = index < 0 || index >= database.length - 1;
+
+      els.categoryTitleInput.value = category ? category.title : "";
+      els.categoryDescriptionInput.value = category ? category.description : "";
+    }
+
+    function renderPromptEditor(prompt) {
+      els.promptEditorPanel.hidden = true;
+      renderInsertPickers();
+      renderLivePromptPreview(null);
+      return;
+      const editingPrompt = getEditingPrompt();
+      const hasPrompt = Boolean(editingPrompt);
+      prompt = editingPrompt;
+      const editorPrompt = prompt && prompt.id === editingPromptId && promptDraft ? promptDraft : prompt;
+      const inputs = [
+        els.promptTitleInput,
+        els.promptStatusInput,
+        els.promptDescriptionInput,
+        els.promptTextInput,
+        els.promptTagsInput,
+        els.promptExpectedInput,
+        els.promptReviewInput,
+        els.promptTargetAIInput,
+        els.promptVersionInput
+      ];
+      inputs.forEach((input) => {
+        input.disabled = !hasPrompt;
+      });
+
+      els.savePromptButton.disabled = !hasPrompt;
+      els.insertVariableButton.disabled = !hasPrompt;
+      els.addTagButton.disabled = !hasPrompt;
+      els.copyDraftPromptButton.disabled = !hasPrompt;
+      els.restorePromptButton.disabled = !hasPrompt;
+      els.exitEditButton.disabled = !hasPrompt;
+      els.duplicatePromptButton.disabled = !hasPrompt;
+      els.deletePromptButton.disabled = !hasPrompt;
+
+      const location = hasPrompt ? getPromptLocation(prompt.id) : null;
+      els.movePromptUpButton.disabled = !location || location.index <= 0;
+      els.movePromptDownButton.disabled = !location || location.index >= location.category.items.length - 1;
+
+      els.promptEditorHint.textContent = hasPrompt
+        ? `正在編輯：${prompt.title}。按「保存卡片」後才會覆蓋本機題庫。`
+        : "目前沒有選到卡片。可按「新增卡片」建立一張空白卡。";
+      els.promptTitleInput.value = editorPrompt ? editorPrompt.title : "";
+      els.promptStatusInput.value = editorPrompt ? editorPrompt.status : "draft";
+      els.promptDescriptionInput.value = editorPrompt ? editorPrompt.description : "";
+      els.promptTextInput.value = editorPrompt ? editorPrompt.promptText : "";
+      els.promptTagsInput.value = editorPrompt ? editorPrompt.tags.join(", ") : "";
+      els.promptExpectedInput.value = editorPrompt ? editorPrompt.expectedOutput : "";
+      els.promptReviewInput.value = editorPrompt ? editorPrompt.humanReviewPoints.join("\n") : "";
+      els.promptTargetAIInput.value = editorPrompt ? editorPrompt.targetAI : "";
+      els.promptVersionInput.value = editorPrompt ? editorPrompt.version : "";
+      renderInsertPickers();
+      renderLivePromptPreview(editorPrompt);
+      renderPromptEditorState();
+    }
+
+    function renderLivePromptPreview(prompt) {
+      if (!prompt) {
+        els.savedPromptStatus.className = "status";
+        els.savedPromptStatus.textContent = "尚未選取";
+        els.savedPromptMeta.textContent = "進入編修模式後，這裡會即時呈現草稿。";
+        els.savedPromptPreview.textContent = "目前沒有編修中的 Prompt 卡片。";
+        return;
+      }
+
+      els.savedPromptStatus.className = `status ${prompt.status}`;
+      els.savedPromptStatus.textContent = isPromptDraftDirty() ? "草稿預覽" : statusLabel(prompt.status);
+      const parts = [
+        prompt.description || "此卡尚未填寫用途說明。",
+        prompt.tags.length ? `標籤：${prompt.tags.join("、")}` : "尚未設定標籤",
+        prompt.variables.length ? `變數：${prompt.variables.map((key) => `[${key}]`).join("、")}` : "無變數"
+      ];
+      els.savedPromptMeta.textContent = parts.join(" ｜ ");
+      els.savedPromptPreview.replaceChildren();
+      renderResolvedPrompt(els.savedPromptPreview, prompt.promptText || "此卡尚未填寫 Prompt 內容。");
+    }
+
+    function updatePromptDraftFromEditor() {
+      const original = getEditingPrompt();
+      if (!original) return;
+      promptDraft = readPromptDraftFromEditor(original);
+      ensureKnownVariables();
+      renderLivePromptPreview(promptDraft);
+      renderPromptEditorState();
+    }
+
+    function updatePromptDraftFromEditorFull() {
+      updatePromptDraftFromEditor();
+      renderVariables();
+      renderCards();
+      renderInsertPickers();
+    }
+
+    function renderPromptEditorState() {
+      const original = getEditingPrompt();
+      const dirty = isPromptDraftDirty();
+      els.promptEditorHint.textContent = original
+        ? `正在編輯：${original.title}。${dirty ? "目前顯示草稿預覽，尚未保存。" : "目前與正式版一致。"}`
+        : "目前沒有選到卡片。可按「新增卡片」建立一張空白卡。";
+      els.savePromptButton.disabled = !original || !dirty;
+      els.copyDraftPromptButton.disabled = !original;
+      els.restorePromptButton.disabled = !original || !dirty;
+      els.exitEditButton.disabled = !original;
+      els.copyDraftPromptButton.textContent = dirty ? "複製草稿" : "複製目前內容";
+    }
+
+    function renderWorkflowStrip(category) {
+      els.workflowStrip.replaceChildren();
+      if (!category) return;
+
+      category.items.forEach((prompt, index) => {
+        const step = document.createElement("span");
+        step.className = `workflow-step ${prompt.id === activePromptId || (!activePromptId && index === 0) ? "active" : ""}`;
+        step.textContent = `${index + 1}. ${prompt.title}`;
+        els.workflowStrip.append(step);
+      });
+    }
+
+    function renderCards() {
+      const category = database.find((item) => item.id === activeCategoryId) || database[0];
+      const query = els.searchInput.value.trim().toLowerCase();
+      els.promptSearchScopeCategory.classList.toggle("active", promptSearchScope === "category");
+      els.promptSearchScopeAll.classList.toggle("active", promptSearchScope === "all");
+
+      if (!category) {
+        els.cardGrid.replaceChildren(emptyNode("目前沒有 Prompt 資料。"));
+        visibleCards = [];
+        return;
+      }
+
+      const promptSource = promptSearchScope === "all"
+        ? database.flatMap((item) => item.items.map((prompt) => ({ prompt, category: item })))
+        : category.items.map((prompt) => ({ prompt, category }));
+
+      visibleCards = promptSource.filter(({ prompt, category: promptCategory }) => {
+        const displayPrompt = getDisplayPrompt(prompt);
+        const haystack = [
+          promptCategory.title,
+          promptCategory.description,
+          displayPrompt.title,
+          displayPrompt.description,
+          displayPrompt.promptText,
+          displayPrompt.status,
+          displayPrompt.expectedOutput,
+          ...displayPrompt.humanReviewPoints,
+          ...displayPrompt.variables,
+          ...displayPrompt.tags
+        ].join(" ").toLowerCase();
+        return !query || haystack.includes(query);
+      }).map(({ prompt }) => prompt);
+
+      els.cardGrid.replaceChildren();
+
+      if (visibleCards.length === 0) {
+        if (promptSearchScope === "category" && category.items.length === 0) {
+          const emptyDiv = document.createElement("div");
+          emptyDiv.className = "empty";
+          emptyDiv.style.flexDirection = "column";
+          emptyDiv.style.gap = "12px";
+          emptyDiv.style.padding = "40px 20px";
+          emptyDiv.style.textAlign = "center";
+          
+          const textSpan = document.createElement("span");
+          textSpan.textContent = "此分類目前沒有卡片。";
+          textSpan.style.color = "var(--muted)";
+          
+          const addBtn = document.createElement("button");
+          addBtn.type = "button";
+          addBtn.className = "button primary";
+          addBtn.textContent = "➕ 新增卡片";
+          addBtn.addEventListener("click", createPrompt);
+          
+          emptyDiv.append(textSpan, addBtn);
+          els.cardGrid.append(emptyDiv);
+        } else {
+          els.cardGrid.append(emptyNode(promptSearchScope === "all" ? "全場域沒有符合搜尋條件的 Prompt。" : "沒有符合搜尋條件的 Prompt。"));
+        }
+        return;
+      }
+
+      visibleCards.forEach((prompt) => {
+        els.cardGrid.append(createPromptCard(prompt));
+      });
+    }
+
+    function emptyNode(text) {
+      const node = document.createElement("div");
+      node.className = "empty";
+      node.textContent = text;
+      return node;
+    }
+
+    function inlineField(labelText, input) {
+      const field = document.createElement("div");
+      field.className = "field";
+      const label = document.createElement("label");
+      label.textContent = labelText;
+      field.append(label, input);
+      return field;
+    }
+
+    function inlineInput(value, onInput) {
+      const input = document.createElement("input");
+      input.value = value || "";
+      input.addEventListener("input", () => {
+        onInput(input.value);
+        renderLivePromptPreview(promptDraft);
+        renderPromptEditorState();
+      });
+      input.addEventListener("change", () => {
+        renderVariables();
+        renderCards();
+      });
+      return input;
+    }
+
+    function inlineTextarea(value, onInput, minHeight = 96) {
+      const textarea = document.createElement("textarea");
+      textarea.value = value || "";
+      textarea.style.minHeight = `${minHeight}px`;
+      textarea.addEventListener("input", () => {
+        onInput(textarea.value);
+        renderLivePromptPreview(promptDraft);
+        renderPromptEditorState();
+      });
+      textarea.addEventListener("change", () => {
+        renderVariables();
+        renderCards();
+      });
+      textarea.addEventListener("focus", () => {
+        activeEditorTextInput = textarea;
+        if (!isListening) setVoiceUiState("ready");
+      });
+      return textarea;
+    }
+
+    function createFieldLivePreview(template, emptyText = "這裡會顯示變數代入後的結果。") {
+      const wrapper = document.createElement("div");
+      wrapper.className = "field-live-preview";
+
+      const title = document.createElement("strong");
+      title.textContent = "即時預覽";
+
+      const body = document.createElement("div");
+      body.className = "field-live-preview-body";
+      renderResolvedPrompt(body, template || emptyText);
+
+      wrapper.append(title, body);
+      return { wrapper, body };
+    }
+
+    function updateFieldLivePreview(body, value, emptyText = "這裡會顯示變數代入後的結果。") {
+      renderResolvedPrompt(body, value || emptyText);
+    }
+
+    function inlineSelect(value, options, onChange) {
+      const select = document.createElement("select");
+      options.forEach((option) => {
+        const node = document.createElement("option");
+        node.value = option.value;
+        node.textContent = option.label;
+        select.append(node);
+      });
+      select.value = value;
+      select.addEventListener("change", () => {
+        onChange(select.value);
+        renderVariables();
+        renderCards();
+      });
+      return select;
+    }
+
+    function createMetadataInlineEditor(displayPrompt) {
+      const editor = document.createElement("div");
+      editor.className = "inline-editor";
+      const title = document.createElement("p");
+      title.className = "inline-editor-title";
+      title.textContent = "卡片資訊編輯";
+
+      const grid = document.createElement("div");
+      grid.className = "inline-editor-grid";
+      const descriptionEditor = createTextBlockEditor("用途說明編輯", displayPrompt.description, "description", (value) => updatePromptDraftField("description", value), 72, "此卡尚未填寫用途說明。");
+      descriptionEditor.classList.add("wide");
+      grid.append(
+        inlineField("標題", inlineInput(displayPrompt.title, (value) => updatePromptDraftField("title", value))),
+        inlineField("狀態", inlineSelect(displayPrompt.status, [
+          { value: "draft", label: "草稿" },
+          { value: "review", label: "待審" },
+          { value: "stable", label: "穩定版" },
+          { value: "deprecated", label: "停用" }
+        ], (value) => updatePromptDraftField("status", value))),
+        descriptionEditor,
+        inlineField("目標 AI", inlineInput(displayPrompt.targetAI, (value) => updatePromptDraftField("targetAI", value))),
+        inlineField("版本", inlineInput(displayPrompt.version, (value) => updatePromptDraftField("version", value)))
+      );
+
+      const tagEditor = document.createElement("div");
+      tagEditor.className = "field wide";
+      const tagLabel = document.createElement("label");
+      tagLabel.textContent = "本卡標籤";
+      const tagRow = document.createElement("div");
+      tagRow.className = "tags";
+      displayPrompt.tags.forEach((tag) => {
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "tag";
+        removeButton.textContent = `${tag} x`;
+        removeButton.title = `從本卡移除 ${tag}`;
+        removeButton.addEventListener("click", () => removeDraftTag(tag));
+        tagRow.append(removeButton);
+      });
+
+      const insertRow = document.createElement("div");
+      insertRow.className = "insert-row";
+      insertRow.style.gridTemplateColumns = "minmax(0, 1fr) minmax(0, 1fr) auto";
+      
+      const tagSelect = document.createElement("select");
+      tagSelect.className = "select";
+      setSelectOptions(tagSelect, getKnownTags(), "選擇既有標籤", selectedTagValue);
+      
+      const customTagInput = document.createElement("input");
+      customTagInput.type = "text";
+      customTagInput.className = "input";
+      customTagInput.placeholder = "自訂新標籤...";
+      customTagInput.style.minWidth = "0";
+      
+      const addButton = document.createElement("button");
+      addButton.type = "button";
+      addButton.className = "button";
+      addButton.textContent = "加入標籤";
+      addButton.addEventListener("click", () => {
+        const customValue = customTagInput.value.trim();
+        if (customValue) {
+          addDraftTag(customValue);
+          customTagInput.value = "";
+        } else {
+          const selectedVal = tagSelect.value || selectedTagValue;
+          if (selectedVal) {
+            addDraftTag(selectedVal);
+          }
+        }
+      });
+      insertRow.append(tagSelect, customTagInput, addButton);
+      tagEditor.append(tagLabel, tagRow, insertRow);
+      grid.append(tagEditor);
+      editor.append(title, grid);
+      return editor;
+    }
+
+    function createPromptInlineEditor(displayPrompt) {
+      const editor = document.createElement("div");
+      editor.className = "inline-editor compact";
+      const title = document.createElement("p");
+      title.className = "inline-editor-title";
+      title.textContent = "Prompt 內容編輯";
+      const textarea = inlineTextarea(displayPrompt.promptText, (value) => updatePromptDraftField("promptText", value), 132);
+      textarea.dataset.draftField = "promptText";
+      const livePreview = createFieldLivePreview(displayPrompt.promptText, "此卡尚未填寫 Prompt 內容。");
+      textarea.addEventListener("input", () => {
+        updateFieldLivePreview(livePreview.body, textarea.value, "此卡尚未填寫 Prompt 內容。");
+      });
+
+      const insertRow = document.createElement("div");
+      insertRow.className = "insert-row";
+      const variableSelect = document.createElement("select");
+      variableSelect.className = "select";
+      setSelectOptions(variableSelect, getKnownVariableKeys(), "選擇變數", selectedVariableKey);
+      const insertButton = document.createElement("button");
+      insertButton.type = "button";
+      insertButton.className = "button";
+      insertButton.textContent = "插入變數";
+      insertButton.addEventListener("click", () => {
+        const key = variableSelect.value || selectedVariableKey;
+        if (!key) {
+          showToast("請先選擇要插入的變數。");
+          return;
+        }
+        selectedVariableKey = key;
+        insertTextAtCursor(textarea, `[${key}]`);
+        updatePromptDraftField("promptText", textarea.value);
+        updateFieldLivePreview(livePreview.body, textarea.value, "此卡尚未填寫 Prompt 內容。");
+        refreshActivePromptVariables(false);
+      });
+      const voiceButton = document.createElement("button");
+      voiceButton.type = "button";
+      voiceButton.className = "button subtle";
+      voiceButton.textContent = "語音插入";
+      voiceButton.dataset.inlineVoiceButton = "true";
+      voiceButton.addEventListener("click", () => {
+        activeEditorTextInput = textarea;
+        toggleVoice("editor");
+      });
+      insertRow.append(variableSelect, insertButton);
+      editor.append(title, textarea, livePreview.wrapper, insertRow);
+      const voiceRow = document.createElement("div");
+      voiceRow.className = "actions";
+      const stopButton = document.createElement("button");
+      stopButton.type = "button";
+      stopButton.className = "button subtle";
+      stopButton.textContent = "停止語音";
+      stopButton.addEventListener("click", () => {
+        if (recognition && isListening) recognition.stop();
+      });
+      voiceRow.append(voiceButton, stopButton);
+      editor.append(voiceRow);
+      return editor;
+    }
+
+    function createTextBlockEditor(label, value, field, onInput, minHeight = 88, emptyText = "這裡會顯示變數代入後的結果。") {
+      const editor = document.createElement("div");
+      editor.className = "inline-editor compact";
+      const title = document.createElement("p");
+      title.className = "inline-editor-title";
+      title.textContent = label;
+      const textarea = inlineTextarea(value, onInput, minHeight);
+      textarea.dataset.draftField = field;
+      const livePreview = createFieldLivePreview(value, emptyText);
+      textarea.addEventListener("input", () => {
+        updateFieldLivePreview(livePreview.body, textarea.value, emptyText);
+      });
+      editor.append(title, textarea, livePreview.wrapper);
+      return editor;
+    }
+
+    function createPromptCard(prompt) {
+      const displayPrompt = getDisplayPrompt(prompt);
+      const isEditing = prompt.id === editingPromptId;
+      const isDirty = isEditing && isPromptDraftDirty();
+      const card = document.createElement("article");
+      card.className = "prompt-card";
+      if (prompt.id === activePromptId) card.classList.add("active-card");
+      if (isEditing) card.classList.add("editing-card");
+      if (isDirty) card.classList.add("dirty-card");
+
+      const header = document.createElement("div");
+      header.className = "prompt-card-header";
+
+      const titleRow = document.createElement("div");
+      titleRow.className = "prompt-card-title-row";
+
+      const title = document.createElement("h3");
+      title.textContent = displayPrompt.title;
+
+      const status = document.createElement("span");
+      status.className = `status ${displayPrompt.status}`;
+      status.textContent = statusLabel(displayPrompt.status);
+
+      titleRow.append(title, status);
+      header.append(titleRow);
+
+      if (isEditing || isDirty) {
+        const editTags = document.createElement("div");
+        editTags.className = "tags";
+        editTags.append(pill("編輯中", "status editing"));
+        if (isDirty) editTags.append(pill("未保存變更", "status unsaved"));
+        if (isDirty) editTags.append(pill("草稿預覽", "status unsaved"));
+        header.append(editTags);
+      }
+
+      if (displayPrompt.description) {
+        const description = document.createElement("p");
+        description.className = "description";
+        description.textContent = displayPrompt.description;
+        header.append(description);
+      }
+
+      const metaRow = document.createElement("div");
+      metaRow.className = "meta-row";
+      if (promptSearchScope === "all") {
+        const categoryTitle = getPromptCategoryTitle(prompt.id);
+        if (categoryTitle) metaRow.append(pill(categoryTitle, "meta"));
+      }
+      for (const label of displayPrompt.variables.map((variable) => `[${variable}]`)) {
+        metaRow.append(pill(label, "meta"));
+      }
+      if (displayPrompt.targetAI) metaRow.append(pill(displayPrompt.targetAI, "meta"));
+      if (displayPrompt.version) metaRow.append(pill(`v${displayPrompt.version}`, "meta"));
+      if (metaRow.childElementCount) header.append(metaRow);
+
+      if (displayPrompt.tags.length) {
+        const tags = document.createElement("div");
+        tags.className = "tags";
+        displayPrompt.tags.forEach((tagText) => tags.append(pill(tagText, "tag")));
+        header.append(tags);
+      }
+
+      if (isEditing) {
+        header.append(createMetadataInlineEditor(displayPrompt));
+      }
+
+      const preview = document.createElement("div");
+      preview.className = "prompt-preview";
+      renderResolvedPrompt(preview, displayPrompt.promptText);
+
+      const promptEditor = isEditing ? createPromptInlineEditor(displayPrompt) : null;
+
+      const detailGrid = document.createElement("div");
+      detailGrid.className = "details-grid";
+      const expectedBox = detailBox("預期輸出", displayPrompt.expectedOutput || "此卡尚未填寫預期輸出。");
+      const reviewBox = detailBox("人工檢查點", displayPrompt.humanReviewPoints.length ? displayPrompt.humanReviewPoints : ["確認輸出是否符合原始資料與任務需求。"]);
+      if (isEditing) {
+        expectedBox.append(createTextBlockEditor("預期輸出編輯", displayPrompt.expectedOutput, "expectedOutput", (value) => updatePromptDraftField("expectedOutput", value)));
+        reviewBox.append(createTextBlockEditor("人工檢查點編輯（一行一個）", displayPrompt.humanReviewPoints.join("\n"), "humanReviewPoints", (value) => updatePromptDraftField("humanReviewPoints", value)));
+      }
+      detailGrid.append(expectedBox, reviewBox);
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      const copyButton = document.createElement("button");
+      copyButton.type = "button";
+      copyButton.className = isDirty ? "button draft" : "button primary";
+      copyButton.textContent = isDirty ? "複製草稿" : "複製 Prompt";
+      copyButton.title = isDirty ? "複製編輯中內容，不會保存。" : "複製目前正式 Prompt。";
+      copyButton.addEventListener("click", () => copyPrompt(isDirty ? displayPrompt : prompt, isDirty ? "draft" : "saved"));
+
+      const fillButton = document.createElement("button");
+      fillButton.type = "button";
+      fillButton.className = "button";
+      fillButton.textContent = prompt.id === activePromptId ? "使用中" : "使用此卡";
+      fillButton.addEventListener("click", () => {
+        selectPromptForUse(prompt);
+        els.variableFields.scrollIntoView({ behavior: "smooth", block: "start" });
+        showToast(`已選用：${prompt.title}，請到右側填變數。`);
+      });
+
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "button subtle";
+      editButton.textContent = "編輯";
+      editButton.addEventListener("click", () => {
+        startEditingPrompt(prompt);
+        els.promptTitleInput.focus();
+      });
+
+      const duplicateButton = document.createElement("button");
+      duplicateButton.type = "button";
+      duplicateButton.className = "button subtle";
+      duplicateButton.textContent = "複製";
+      duplicateButton.addEventListener("click", () => duplicatePrompt(prompt.id));
+
+      const moveUpButton = document.createElement("button");
+      moveUpButton.type = "button";
+      moveUpButton.className = "button subtle";
+      moveUpButton.textContent = "上移";
+      moveUpButton.addEventListener("click", () => movePrompt(prompt.id, -1));
+
+      const moveDownButton = document.createElement("button");
+      moveDownButton.type = "button";
+      moveDownButton.className = "button subtle";
+      moveDownButton.textContent = "下移";
+      moveDownButton.addEventListener("click", () => movePrompt(prompt.id, 1));
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "button danger";
+      deleteButton.textContent = "刪除";
+      deleteButton.addEventListener("click", () => deletePrompt(prompt.id));
+
+      if (isEditing) {
+        const saveButton = document.createElement("button");
+        saveButton.type = "button";
+        saveButton.className = "button primary";
+        saveButton.textContent = "保存卡片";
+        saveButton.disabled = !isDirty;
+        saveButton.addEventListener("click", saveCurrentPromptDraft);
+
+        const restoreButton = document.createElement("button");
+        restoreButton.type = "button";
+        restoreButton.className = "button subtle";
+        restoreButton.textContent = "恢復原文";
+        restoreButton.disabled = !isDirty;
+        restoreButton.addEventListener("click", restorePromptDraft);
+
+        const exitButton = document.createElement("button");
+        exitButton.type = "button";
+        exitButton.className = "button subtle";
+        exitButton.textContent = "退出編修";
+        exitButton.addEventListener("click", exitEditMode);
+
+        actions.append(fillButton, copyButton, saveButton, restoreButton, exitButton, duplicateButton, moveUpButton, moveDownButton, deleteButton);
+      } else {
+        actions.append(fillButton, copyButton, editButton, duplicateButton, moveUpButton, moveDownButton, deleteButton);
+      }
+
+      card.append(header, preview);
+      if (promptEditor) card.append(promptEditor);
+      card.append(detailGrid, actions);
+      return card;
+    }
+
+    function pill(text, className) {
+      const node = document.createElement("span");
+      node.className = className;
+      node.textContent = text;
+      return node;
+    }
+
+    function detailBox(title, content) {
+      const box = document.createElement("div");
+      box.className = "detail-box";
+      const label = document.createElement("strong");
+      label.textContent = title;
+      box.append(label);
+
+      if (Array.isArray(content)) {
+        const list = document.createElement("ul");
+        content.forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          list.append(li);
+        });
+        box.append(list);
+      } else {
+        const p = document.createElement("p");
+        p.className = "panel-note";
+        p.textContent = content;
+        box.append(p);
+      }
+      return box;
+    }
+
+    function statusLabel(status) {
+      const labels = {
+        stable: "穩定版",
+        draft: "草稿",
+        review: "待審",
+        deprecated: "停用"
+      };
+      return labels[status] || "穩定版";
+    }
+
+    function renderResolvedPrompt(container, template) {
+      container.replaceChildren();
+      const pattern = /(\[[A-Za-z0-9_]+\]|\{\{[A-Za-z0-9_]+\}\})/g;
+      const parts = String(template).split(pattern).filter((part) => part !== "");
+
+      parts.forEach((part) => {
+        const key = extractVariableKey(part);
+        if (!key) {
+          container.append(document.createTextNode(part));
+          return;
+        }
+
+        const value = variables[key] || `[請輸入 ${key}]`;
+        const mark = document.createElement("mark");
+        mark.textContent = value;
+        container.append(mark);
+      });
+    }
+
+    function extractVariableKey(token) {
+      if (token.startsWith("[") && token.endsWith("]")) return token.slice(1, -1);
+      if (token.startsWith("{{") && token.endsWith("}}")) return token.slice(2, -2);
+      return "";
+    }
+
+    function resolvePrompt(template) {
+      return String(template).replace(/(\[[A-Za-z0-9_]+\]|\{\{[A-Za-z0-9_]+\}\})/g, (token) => {
+        const key = extractVariableKey(token);
+        return variables[key] || token;
+      });
+    }
+
+    async function copyPrompt(prompt, mode = "saved") {
+      const text = resolvePrompt(prompt.promptText);
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast(mode === "draft" ? "已複製草稿 Prompt，尚未保存。" : "已複製完整 Prompt。");
+      } catch (error) {
+        showToast("瀏覽器不允許直接複製，請手動選取 Prompt 文字。");
+      }
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        els.toast.classList.remove("show");
+      }, 2300);
+    }
+
+    function render() {
+      if (!database.find((category) => category.id === activeCategoryId)) {
+        activeCategoryId = database[0] ? database[0].id : "";
+      }
+
+      const category = getActiveCategory();
+      sourceName = sourceName || "內建模型菜題庫";
+      els.sourceName.textContent = sourceName;
+      ensureKnownVariables();
+      renderMetrics();
+      renderCategories();
+      renderCategoryDetail(category);
+      renderCategoryEditor(category);
+      renderWorkflowStrip(category);
+      renderVariables();
+      renderPromptEditor(getActivePrompt());
+      syncSpecialInputsFromVariables(false);
+      renderCards();
+    }
+
+    function syncSpecialInputsFromVariables(writeBack) {
+      if (writeBack) {
+        variables.Voice_Text = els.voiceTranscript.value;
+      } else {
+        els.voiceTranscript.value = variables.Voice_Text || "";
+      }
+    }
+
+    function loadDatabase(input, sourceLabel) {
+      const normalized = normalizeDatabase(input);
+      if (!normalized.length) throw new Error("資料庫至少需要一個分類。");
+      database = normalized;
+      sourceName = sourceLabel;
+      activeCategoryId = database[0].id;
+      activePromptId = "";
+      editingPromptId = "";
+      promptDraft = null;
+      els.searchInput.value = "";
+      saveState();
+      render();
+    }
+
+    function loadInputMaterial(input, sourceLabel) {
+      variables.Material_JSON = JSON.stringify(input, null, 2);
+      if (input.rawText) variables.OCR_Text = String(input.rawText);
+      if (input.transcript || input.voiceText) variables.Voice_Text = String(input.transcript || input.voiceText);
+      if (input.summary) variables.Topic = String(input.title || input.summary).slice(0, 80);
+      sourceName = sourceLabel;
+      saveState();
+      render();
+      showToast("Input Material JSON 已放入暫用變數；請確認欄位後保存。");
+    }
+
+    function saveCategoryFromEditor() {
+      const category = getActiveCategory();
+      if (!category) return;
+
+      const title = els.categoryTitleInput.value.trim();
+      if (!title) {
+        showToast("分類名稱不能空白。");
+        els.categoryTitleInput.focus();
+        return;
+      }
+
+      category.title = title;
+      category.description = els.categoryDescriptionInput.value.trim();
+      saveState();
+      render();
+      showToast("分類已保存。");
+    }
+
+    function createCategory() {
+      const title = "新分類";
+      const category = {
+        id: uniqueId(title, database.map((item) => item.id)),
+        title,
+        description: "請填寫這個分類的用途。",
+        items: []
+      };
+      database.push(category);
+      activeCategoryId = category.id;
+      activePromptId = "";
+      editingPromptId = "";
+      promptDraft = null;
+      saveState();
+      render();
+      els.categoryTitleInput.focus();
+      els.categoryTitleInput.select();
+      showToast("已新增分類，請改名後保存。");
+    }
+
+    function moveCategory(direction) {
+      const index = database.findIndex((category) => category.id === activeCategoryId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= database.length) return;
+      [database[index], database[nextIndex]] = [database[nextIndex], database[index]];
+      saveState();
+      render();
+      showToast("分類順序已調整。");
+    }
+
+    function deleteCategory() {
+      const category = getActiveCategory();
+      if (!category || database.length <= 1) return;
+      const confirmed = window.confirm(`確定刪除分類「${category.title}」？其中 ${category.items.length} 張卡片也會一起刪除。`);
+      if (!confirmed) return;
+      const index = database.findIndex((item) => item.id === category.id);
+      database.splice(index, 1);
+      activeCategoryId = database[Math.max(0, index - 1)] ? database[Math.max(0, index - 1)].id : database[0].id;
+      activePromptId = "";
+      editingPromptId = "";
+      promptDraft = null;
+      saveState();
+      render();
+      showToast("分類已刪除。");
+    }
+
+    function readPromptEditor(existingPrompt) {
+      return readPromptDraftFromEditor(existingPrompt, { requireValid: true });
+    }
+
+    function createPrompt() {
+      const category = getActiveCategory();
+      if (!category) return;
+      const prompt = normalizePrompt({
+        id: uniqueId("new-prompt", getAllPrompts().map((item) => item.id)),
+        title: "新 Prompt 卡",
+        description: "請填寫用途說明。",
+        promptText: "請根據 [Topic] 產出一份清楚、可執行的回應。",
+        tags: ["草稿"],
+        status: "draft",
+        variables: ["Topic"],
+        expectedOutput: "清楚的段落或條列內容。",
+        humanReviewPoints: ["確認輸出是否符合任務目的。"],
+        source: sourceName
+      });
+      category.items.push(prompt);
+      activePromptId = prompt.id;
+      editingPromptId = prompt.id;
+      promptDraft = clone(prompt);
+      saveState();
+      render();
+      window.setTimeout(() => {
+        document.querySelector(".prompt-card.editing-card input")?.focus();
+      }, 0);
+      showToast("已新增卡片，請編輯後保存。");
+    }
+
+    function savePromptFromEditor() {
+      const location = getPromptLocation(activePromptId);
+      if (!location) return;
+      const nextPrompt = readPromptEditor(location.prompt);
+      if (!nextPrompt) return;
+      location.category.items[location.index] = nextPrompt;
+      activePromptId = nextPrompt.id;
+      editingPromptId = nextPrompt.id;
+      promptDraft = clone(nextPrompt);
+      ensureKnownVariables();
+      saveState();
+      render();
+      showToast("Prompt 卡片已保存。");
+    }
+
+    function duplicatePrompt(promptId) {
+      const location = getPromptLocation(promptId);
+      if (!location) return;
+      const copy = normalizePrompt({
+        ...clone(location.prompt),
+        id: uniqueId(`${location.prompt.id}-copy`, getAllPrompts().map((item) => item.id)),
+        title: `${location.prompt.title} 副本`,
+        status: "draft"
+      });
+      location.category.items.splice(location.index + 1, 0, copy);
+      activePromptId = copy.id;
+      saveState();
+      render();
+      showToast("已複製卡片。");
+    }
+
+    function movePrompt(promptId, direction) {
+      const location = getPromptLocation(promptId);
+      if (!location) return;
+      const nextIndex = location.index + direction;
+      if (nextIndex < 0 || nextIndex >= location.category.items.length) return;
+      [location.category.items[location.index], location.category.items[nextIndex]] = [
+        location.category.items[nextIndex],
+        location.category.items[location.index]
+      ];
+      activePromptId = promptId;
+      saveState();
+      render();
+      showToast("卡片順序已調整。");
+    }
+
+    function deletePrompt(promptId) {
+      const location = getPromptLocation(promptId);
+      if (!location) return;
+      const confirmed = window.confirm(`確定刪除「${location.prompt.title}」？`);
+      if (!confirmed) return;
+      location.category.items.splice(location.index, 1);
+      const nextPrompt = location.category.items[Math.min(location.index, location.category.items.length - 1)];
+      activePromptId = nextPrompt ? nextPrompt.id : "";
+      editingPromptId = "";
+      promptDraft = null;
+      saveState();
+      render();
+      showToast("Prompt 卡片已刪除。");
+    }
+
+    function handleJsonInput(parsed, label) {
+      if (parsed && typeof parsed === "object" && parsed.type === "inputMaterial") {
+        loadInputMaterial(parsed, label);
+        return;
+      }
+      loadDatabase(parsed, label);
+      showToast("Prompt Database JSON 匯入完成。");
+    }
+
+    function handleFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result));
+          handleJsonInput(parsed, `已匯入：${file.name}`);
+        } catch (error) {
+          showToast(error.message || "JSON 匯入失敗。");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function mapHeader(key) {
+      const k = String(key || "").trim();
+      if (/分類ID|Category\s*ID/i.test(k)) return "categoryId";
+      if (/分類名稱|Category\s*(Title|Name)/i.test(k)) return "categoryTitle";
+      if (/分類說明|Category\s*Description/i.test(k)) return "categoryDescription";
+      if (/卡片ID|Card\s*ID|Prompt\s*ID/i.test(k)) return "cardId";
+      if (/卡片名稱|Card\s*(Title|Name)|Prompt\s*(Title|Name)/i.test(k)) return "cardTitle";
+      if (/卡片說明|Card\s*Description|Prompt\s*Description/i.test(k)) return "cardDescription";
+      if (/提示詞範本|提示詞|Prompt\s*Template|Prompt\s*Text/i.test(k)) return "promptText";
+      if (/標籤|Tags/i.test(k)) return "tags";
+      if (/狀態|Status/i.test(k)) return "status";
+      if (/預期輸出|Expected\s*Output/i.test(k)) return "expectedOutput";
+      if (/人工檢查點|檢查點|Review\s*Points|Human\s*Review\s*Points/i.test(k)) return "humanReviewPoints";
+      if (/目標AI|Target\s*AI/i.test(k)) return "targetAI";
+      if (/角色|Role/i.test(k)) return "role";
+      if (/課程|Course/i.test(k)) return "course";
+      if (/版本|Version/i.test(k)) return "version";
+      if (/來源|Source/i.test(k)) return "source";
+      return null;
+    }
+
+    function importExcelData(rows, fileName) {
+      if (!Array.isArray(rows) || rows.length === 0) {
+        throw new Error("Excel 檔案為空或格式不符。");
+      }
+
+      const newCategories = [];
+      const categoriesMap = new Map();
+
+      rows.forEach((row) => {
+        const normalizedRow = {};
+        Object.keys(row).forEach((rawKey) => {
+          const mappedKey = mapHeader(rawKey);
+          if (mappedKey) {
+            normalizedRow[mappedKey] = row[rawKey];
+          }
+        });
+
+        const categoryId = String(normalizedRow.categoryId || "").trim();
+        const categoryTitle = String(normalizedRow.categoryTitle || "").trim();
+        const categoryDescription = String(normalizedRow.categoryDescription || "").trim();
+
+        if (!categoryId && !categoryTitle) {
+          return;
+        }
+
+        const catKey = categoryId || categoryTitle;
+        let cat = categoriesMap.get(catKey);
+        if (!cat) {
+          cat = {
+            id: categoryId || slugify(categoryTitle, "category"),
+            title: categoryTitle || categoryId || "未命名分類",
+            description: categoryDescription,
+            items: []
+          };
+          categoriesMap.set(catKey, cat);
+          newCategories.push(cat);
+        } else {
+          if (categoryTitle && !cat.title) cat.title = categoryTitle;
+          if (categoryDescription && !cat.description) cat.description = categoryDescription;
+        }
+
+        const cardTitle = String(normalizedRow.cardTitle || "").trim();
+        const promptText = String(normalizedRow.promptText || "").trim();
+
+        if (cardTitle || promptText) {
+          const cardId = String(normalizedRow.cardId || "").trim();
+          const cardDescription = String(normalizedRow.cardDescription || "").trim();
+          const tagsRaw = normalizedRow.tags;
+          const status = String(normalizedRow.status || "").trim();
+          const expectedOutput = String(normalizedRow.expectedOutput || "").trim();
+          const humanReviewPointsRaw = normalizedRow.humanReviewPoints;
+          const targetAI = String(normalizedRow.targetAI || "").trim();
+          const role = String(normalizedRow.role || "").trim();
+          const course = String(normalizedRow.course || "").trim();
+          const version = String(normalizedRow.version || "").trim();
+          const source = String(normalizedRow.source || "").trim();
+
+          let tags = [];
+          if (Array.isArray(tagsRaw)) {
+            tags = tagsRaw.map(String);
+          } else if (typeof tagsRaw === "string" || typeof tagsRaw === "number") {
+            tags = String(tagsRaw).split(/[,，\n]/).map((t) => t.trim()).filter(Boolean);
+          }
+
+          let humanReviewPoints = [];
+          if (Array.isArray(humanReviewPointsRaw)) {
+            humanReviewPoints = humanReviewPointsRaw.map(String);
+          } else if (typeof humanReviewPointsRaw === "string" || typeof humanReviewPointsRaw === "number") {
+            humanReviewPoints = String(humanReviewPointsRaw).split(/[\n;；，,]/).map((p) => p.trim()).filter(Boolean);
+          }
+
+          let resolvedCardId = cardId;
+          if (!resolvedCardId) {
+            const cleanTitleSlug = slugify(cardTitle);
+            resolvedCardId = cleanTitleSlug 
+              ? uniqueId(cleanTitleSlug, cat.items.map(i => i.id))
+              : uniqueId("prompt", cat.items.map(i => i.id));
+          }
+
+          const prompt = {
+            id: resolvedCardId,
+            title: cardTitle || "新 Prompt 卡",
+            description: cardDescription,
+            promptText,
+            tags,
+            status: status || "stable",
+            variables: [],
+            expectedOutput,
+            humanReviewPoints,
+            targetAI,
+            role,
+            course,
+            version,
+            source: source || sourceName
+          };
+
+          cat.items.push(prompt);
+        }
+      });
+
+      if (newCategories.length === 0) {
+        throw new Error("無法從 Excel 檔案中解析出有效的分類與卡片。");
+      }
+
+      loadDatabase(newCategories, `已匯入 Excel：${fileName}`);
+    }
+
+    function importExcel(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          if (!worksheet) {
+            throw new Error("Excel 檔案中找不到工作表。");
+          }
+          const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+          importExcelData(rows, file.name);
+          showToast("Excel 匯入完成（已全覆蓋）。");
+        } catch (error) {
+          showToast(error.message || "Excel 匯入失敗。");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function exportExcel() {
+      try {
+        const rows = [];
+        database.forEach((category) => {
+          category.items.forEach((prompt) => {
+            rows.push({
+              "分類ID": category.id,
+              "分類名稱": category.title,
+              "分類說明": category.description || "",
+              "卡片ID": prompt.id,
+              "卡片名稱": prompt.title,
+              "卡片說明": prompt.description || "",
+              "提示詞範本": prompt.promptText || "",
+              "標籤": (prompt.tags || []).join(", "),
+              "狀態": prompt.status || "stable",
+              "預期輸出": prompt.expectedOutput || "",
+              "人工檢查點": (prompt.humanReviewPoints || []).join("\n"),
+              "目標AI": prompt.targetAI || "",
+              "角色": prompt.role || "",
+              "課程": prompt.course || "",
+              "版本": prompt.version || "",
+              "來源": prompt.source || ""
+            });
+          });
+        });
+
+        if (rows.length === 0) {
+          showToast("資料庫中沒有卡片可以匯出。");
+          return;
+        }
+
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Prompt Cards");
+
+        const stamp = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+        const filename = `falo_prompt_export_${stamp}.xlsx`;
+
+        XLSX.writeFile(workbook, filename);
+        showToast("已匯出 Excel 檔案。");
+      } catch (error) {
+        showToast(error.message || "Excel 匯出失敗。");
+      }
+    }
+
+    function exportDatabase(isBackup) {
+      const payload = {
+        metadata: {
+          schemaVersion: "0.3",
+          title: "FALO Prompt Manager Export",
+          exportedAt: new Date().toISOString(),
+          sourceName
+        },
+        promptCategories: database.map(({ id, title, description }) => ({ id, title, description })),
+        prompts: database.flatMap((category) => category.items.map((prompt) => ({
+          ...prompt,
+          categoryId: category.id
+        }))),
+        variables,
+        projects: [],
+        workflows: []
+      };
+      const stamp = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+      const filename = isBackup
+        ? `falo_prompt_backup_${stamp}.json`
+        : `falo_prompt_export_${stamp}.json`;
+      downloadJson(payload, filename);
+      showToast(isBackup ? "已下載存檔備份 JSON。" : "已匯出 JSON。");
+    }
+
+    function downloadJson(payload, filename) {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function openOcrWorkbench() {
+      const win = window.open("https://falo-taiwan.github.io/ai-ocr-demo/", "faloOcrWorkbench", "width=1120,height=820,resizable=yes,scrollbars=yes");
+      if (!win) {
+        showToast("瀏覽器封鎖了新視窗，請允許彈出視窗後再試。");
+        return;
+      }
+      win.focus();
+    }
+
+    function setTheme(theme) {
+      const nextTheme = theme === "teaching" ? "warm" : theme;
+      document.body.dataset.theme = nextTheme;
+      els.themeSelect.value = nextTheme;
+      localStorage.setItem(STORAGE_KEYS.theme, nextTheme);
+    }
+
+    function setupVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        els.voiceStatus.textContent = "Web Speech API：此瀏覽器不支援。";
+        els.voiceButton.disabled = true;
+        els.editorVoiceStatus.textContent = "Web Speech API：此瀏覽器不支援。";
+        els.editorVoiceButton.disabled = true;
+        els.editorVoiceStopButton.disabled = true;
+        setVoiceUiState("error", "此瀏覽器不支援 Web Speech API。");
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = "zh-TW";
+      recognition.interimResults = true;
+      recognition.continuous = true;
+
+      recognition.onstart = () => {
+        isListening = true;
+        if (voiceMode === "editor") {
+          els.editorVoiceButton.textContent = "聽寫中";
+          els.editorVoiceStatus.textContent = "Web Speech API：正在寫入編輯區。";
+        } else {
+          els.voiceButton.textContent = "停止聽寫";
+          els.voiceStatus.textContent = "Web Speech API：聆聽中。";
+        }
+        setVoiceUiState("recording");
+      };
+
+      recognition.onresult = (event) => {
+        let finalText = "";
+        let interimText = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const text = event.results[i][0].transcript;
+          if (event.results[i].isFinal) finalText += text;
+          else interimText += text;
+        }
+        if (finalText) {
+          if (voiceMode === "editor") {
+            insertIntoActiveEditor(finalText);
+          } else {
+            const prefix = els.voiceTranscript.value.trim() ? "\n" : "";
+            els.voiceTranscript.value += `${prefix}${finalText.trim()}`;
+            variables.Voice_Text = els.voiceTranscript.value;
+            renderVariables();
+            renderCards();
+          }
+        }
+        const statusText = interimText ? `辨識中：${interimText}` : "Web Speech API：聆聽中。";
+        if (voiceMode === "editor") els.editorVoiceStatus.textContent = statusText;
+        else els.voiceStatus.textContent = statusText;
+        if (interimText) {
+          els.voiceCaptureHelp.textContent = `辨識中：${interimText}`;
+        }
+      };
+
+      recognition.onerror = (event) => {
+        els.voiceStatus.textContent = `Web Speech API：${event.error}`;
+        els.editorVoiceStatus.textContent = `Web Speech API：${event.error}`;
+        setVoiceUiState("error", `Web Speech API：${event.error}`);
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        els.voiceButton.textContent = "開始聽寫";
+        els.editorVoiceButton.textContent = "語音插入";
+        if (!els.voiceStatus.textContent.includes("不支援")) {
+          els.voiceStatus.textContent = "Web Speech API：待命。";
+        }
+        if (!els.editorVoiceStatus.textContent.includes("不支援")) {
+          els.editorVoiceStatus.textContent = "語音會插入目前游標所在的編輯文字區塊。";
+        }
+        setVoiceUiState("idle");
+      };
+    }
+
+    function toggleVoice(mode = "global") {
+      if (!recognition) return;
+      if (isListening) {
+        recognition.stop();
+        return;
+      }
+      voiceMode = mode;
+      setVoiceUiState("ready");
+      recognition.start();
+    }
+
+    function setupPwa() {
+      window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        els.installButton.disabled = false;
+        els.pwaStatus.textContent = "PWA 可安裝。";
+      });
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./service-worker.js")
+          .then(() => {
+            els.pwaStatus.textContent = "Service worker 已註冊，支援離線快取。";
+          })
+          .catch(() => {
+            els.pwaStatus.textContent = "Service worker 註冊失敗，請用 localhost 或 HTTPS 測試。";
+          });
+      } else {
+        els.pwaStatus.textContent = "此瀏覽器不支援 service worker。";
+      }
+    }
+
+    els.importButton.addEventListener("click", () => els.fileInput.click());
+    els.fileInput.addEventListener("change", (event) => {
+      handleFile(event.target.files[0]);
+      event.target.value = "";
+    });
+
+    els.exportButton.addEventListener("click", () => exportDatabase(false));
+    els.backupButton?.addEventListener("click", () => exportDatabase(true));
+
+    els.importExcelButton.addEventListener("click", () => els.excelFileInput.click());
+    els.excelFileInput.addEventListener("change", (event) => {
+      importExcel(event.target.files[0]);
+      event.target.value = "";
+    });
+
+    els.exportExcelButton.addEventListener("click", exportExcel);
+
+    els.saveCategoryButton.addEventListener("click", saveCategoryFromEditor);
+    els.newCategoryButton.addEventListener("click", createCategory);
+    els.moveCategoryUpButton.addEventListener("click", () => moveCategory(-1));
+    els.moveCategoryDownButton.addEventListener("click", () => moveCategory(1));
+    els.deleteCategoryButton.addEventListener("click", deleteCategory);
+
+    els.savePromptButton.addEventListener("click", savePromptFromEditor);
+    els.newPromptButton.addEventListener("click", createPrompt);
+    els.addPromptToolbarButton.addEventListener("click", createPrompt);
+    els.variableInsertSelect.addEventListener("change", () => {
+      selectedVariableKey = els.variableInsertSelect.value;
+    });
+    els.tagInsertSelect.addEventListener("change", () => {
+      selectedTagValue = els.tagInsertSelect.value;
+    });
+    els.insertVariableButton.addEventListener("click", insertVariableToken);
+    els.addTagButton.addEventListener("click", addSelectedTag);
+    [
+      els.promptTitleInput,
+      els.promptStatusInput,
+      els.promptDescriptionInput,
+      els.promptTextInput,
+      els.promptTagsInput,
+      els.promptExpectedInput,
+      els.promptReviewInput,
+      els.promptTargetAIInput,
+      els.promptVersionInput
+    ].forEach((input) => {
+      input.addEventListener("input", updatePromptDraftFromEditor);
+      input.addEventListener("change", updatePromptDraftFromEditorFull);
+    });
+    [
+      els.promptDescriptionInput,
+      els.promptTextInput,
+      els.promptExpectedInput,
+      els.promptReviewInput
+    ].forEach((input) => {
+      input.addEventListener("focus", () => {
+        activeEditorTextInput = input;
+        els.editorVoiceStatus.textContent = `語音會插入「${input.previousElementSibling ? input.previousElementSibling.textContent : "目前欄位"}」。`;
+        if (!isListening) setVoiceUiState("ready");
+      });
+    });
+    els.copyDraftPromptButton.addEventListener("click", () => {
+      const draft = promptDraft || getEditingPrompt();
+      if (draft) copyPrompt(draft, isPromptDraftDirty() ? "draft" : "saved");
+    });
+    els.restorePromptButton.addEventListener("click", restorePromptDraft);
+    els.exitEditButton.addEventListener("click", exitEditMode);
+    els.duplicatePromptButton.addEventListener("click", () => {
+      if (activePromptId) duplicatePrompt(activePromptId);
+    });
+    els.movePromptUpButton.addEventListener("click", () => {
+      if (activePromptId) movePrompt(activePromptId, -1);
+    });
+    els.movePromptDownButton.addEventListener("click", () => {
+      if (activePromptId) movePrompt(activePromptId, 1);
+    });
+    els.deletePromptButton.addEventListener("click", () => {
+      if (activePromptId) deletePrompt(activePromptId);
+    });
+
+    els.resetButton.addEventListener("click", () => {
+      database = clone(DEFAULT_DATABASE);
+      variables = clone(DEFAULT_VARIABLES);
+      savedVariables = clone(DEFAULT_VARIABLES);
+      sourceName = "內建模型菜題庫";
+      activeCategoryId = database[0].id;
+      activePromptId = "";
+      editingPromptId = "";
+      promptDraft = null;
+      els.searchInput.value = "";
+      saveState({ variables: true });
+      render();
+      showToast("已還原內建模型菜題庫。");
+    });
+
+    els.themeSelect.addEventListener("change", () => setTheme(els.themeSelect.value));
+
+    els.searchInput.addEventListener("input", renderCards);
+    els.promptSearchScopeCategory.addEventListener("click", () => setPromptSearchScope("category"));
+    els.promptSearchScopeAll.addEventListener("click", () => setPromptSearchScope("all"));
+    els.clearSearchButton.addEventListener("click", () => {
+      els.searchInput.value = "";
+      renderCards();
+    });
+
+    els.variableFilterPageButton.addEventListener("click", () => setVariableFilterMode("page"));
+    els.variableFilterAllButton.addEventListener("click", () => setVariableFilterMode("all"));
+    els.variableFilterIssuesButton.addEventListener("click", () => setVariableFilterMode("issues"));
+    els.variableSearchInput.addEventListener("input", () => {
+      variableSearchQuery = els.variableSearchInput.value;
+      renderVariables();
+    });
+    els.refreshVariablesButton.addEventListener("click", () => refreshActivePromptVariables(true));
+    els.newVariableToggleButton.addEventListener("click", () => {
+      els.newVariablePanel.hidden = !els.newVariablePanel.hidden;
+      if (!els.newVariablePanel.hidden) els.newVariableNameInput.focus();
+    });
+    els.addVariableButton.addEventListener("click", addVariableFromPanel);
+    els.cancelAddVariableButton.addEventListener("click", () => {
+      els.newVariableNameInput.value = "";
+      els.newVariableValueInput.value = "";
+      els.newVariablePanel.hidden = true;
+    });
+    els.newVariableValueInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addVariableFromPanel();
+    });
+
+    els.copyVisibleButton.addEventListener("click", () => {
+      if (visibleCards[0]) copyPrompt(visibleCards[0]);
+      else showToast("目前沒有可複製的 Prompt。");
+    });
+
+    els.installButton.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) {
+        showToast("尚未收到安裝提示；請用 Chrome/Edge 並透過 localhost 或 HTTPS 開啟。");
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+    });
+
+    els.voiceButton.addEventListener("click", () => toggleVoice("global"));
+    els.editorVoiceButton.addEventListener("click", () => {
+      if (!getEditingPrompt()) {
+        showToast("請先選一張 Prompt 卡片再使用語音插入。");
+        return;
+      }
+      if (!activeEditorTextInput) activeEditorTextInput = els.promptTextInput;
+      toggleVoice("editor");
+    });
+    els.editorVoiceStopButton.addEventListener("click", () => {
+      if (recognition && isListening) recognition.stop();
+    });
+    els.clearVoiceButton.addEventListener("click", () => {
+      els.voiceTranscript.value = "";
+      variables.Voice_Text = "";
+      renderVariables();
+      render();
+    });
+
+    els.voiceTranscript.addEventListener("input", () => {
+      variables.Voice_Text = els.voiceTranscript.value;
+      renderVariables();
+      renderCards();
+    });
+
+    els.openOcrWorkbenchButton.addEventListener("click", openOcrWorkbench);
+
+    els.dropZone.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      els.dropZone.classList.add("is-over");
+    });
+
+    els.dropZone.addEventListener("dragleave", () => {
+      els.dropZone.classList.remove("is-over");
+    });
+
+    els.dropZone.addEventListener("drop", (event) => {
+      event.preventDefault();
+      els.dropZone.classList.remove("is-over");
+      handleFile(event.dataTransfer.files[0]);
+    });
+
+    window.addEventListener("online", renderMetrics);
+    window.addEventListener("offline", renderMetrics);
+
+    document.addEventListener("keydown", (event) => {
+      const mod = event.metaKey || event.ctrlKey;
+      if (mod && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        els.searchInput.focus();
+      }
+      if (mod && event.key === "Enter") {
+        event.preventDefault();
+        if (visibleCards[0]) copyPrompt(visibleCards[0]);
+      }
+      if (!mod && /^[1-9]$/.test(event.key) && document.activeElement === document.body) {
+        const index = Number(event.key) - 1;
+        if (database[index]) {
+          activeCategoryId = database[index].id;
+          render();
+        }
+      }
+      if (!mod && event.key.toLowerCase() === "v" && document.activeElement === document.body) {
+        event.preventDefault();
+        els.voiceTranscript.focus();
+      }
+      if (event.key === "Escape") {
+        els.searchInput.value = "";
+        renderCards();
+      }
+    });
+
+    setTheme(localStorage.getItem(STORAGE_KEYS.theme) || "light");
+    els.sourceName.textContent = sourceName;
+    syncSpecialInputsFromVariables(false);
+    setupVoiceRecognition();
+    setupPwa();
+    render();
+  </script>
 </body>
 </html>

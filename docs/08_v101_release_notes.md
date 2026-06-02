@@ -15,6 +15,15 @@
 | Product Line | FALO Prompt |
 | Delivery | Local-first PWA / single-file HTML main app |
 
+公開展示入口：
+
+```text
+https://falo-taiwan.github.io/prompt-demo/
+https://falo-taiwan.github.io/prompt-demo/index.html
+```
+
+根目錄 `index.html` 是正式 Pages / PWA 展示版，不再是 redirect。`packages/local-html/index.html` 保留為工程來源。
+
 一句話：
 
 > FALO Prompt Manager v1.01 是一個可教學、可展示、可安裝的 Prompt Asset Management PWA。

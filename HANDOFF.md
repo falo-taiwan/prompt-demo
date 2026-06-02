@@ -22,6 +22,12 @@
 
 `/Users/force/AI-CodeX/falo-prompt-manager`
 
+GitHub Pages 公開展示入口：
+
+`https://falo-taiwan.github.io/prompt-demo/`
+
+根目錄 `index.html` 是正式 Pages / PWA 展示版，不是導向頁。`packages/local-html/index.html` 是工程來源與本地開發版；兩者發布時需同步。
+
 ## 核心共識
 
 這是一個獨立主題單元，可穿插到任何 AI 課程。
@@ -73,5 +79,6 @@
 9. `docs/09_voice_capture_mode_design.md`
 10. `packages/shared-schema/capability-pack.schema.json`
 11. `packages/local-html/index.html`
+12. 根目錄 `index.html`
 
 再決定要接本地版、Chrome 外掛版，或 GAS 同步版。

@@ -27,7 +27,7 @@
 
 ## 開啟方式
 
-直接開啟：
+工程來源直接開啟：
 
 `index.html`
 
@@ -40,6 +40,12 @@ python3 -m http.server 4173
 再開啟：
 
 `http://localhost:4173/packages/local-html/index.html`
+
+GitHub Pages 發布版會同步到 repo 根目錄：
+
+`https://falo-taiwan.github.io/prompt-demo/`
+
+發布版根目錄不是導向頁，而是可直接安裝的 PWA 主頁。
 
 ## 匯入資料
 
