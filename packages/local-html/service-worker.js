@@ -1,4 +1,4 @@
-const CACHE_NAME = "falo-prompt-manager-v101-20260601-release";
+const CACHE_NAME = "falo-prompt-manager-v101-variable-renew1";
 const APP_SHELL = [
   "./",
   "./index.html",

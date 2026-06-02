@@ -576,6 +576,33 @@
       flex-wrap: wrap;
     }
 
+    .segmented-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+
+    .segment-button {
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      min-height: 32px;
+      padding: 5px 9px;
+      font-weight: 850;
+      font-size: 12px;
+    }
+
+    .segment-button.active {
+      background: var(--panel);
+      color: var(--accent-strong);
+      box-shadow: 0 1px 5px rgba(15, 23, 42, 0.08);
+    }
+
     .category-detail {
       padding: 15px 16px 0;
     }
@@ -786,6 +813,25 @@
       justify-content: flex-end;
       gap: 8px;
       flex-wrap: wrap;
+    }
+
+    .variable-toolbar {
+      display: grid;
+      gap: 9px;
+      margin: 10px 0 12px;
+    }
+
+    .new-variable-panel {
+      border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--accent-soft) 28%, var(--panel));
+      padding: 10px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .new-variable-panel[hidden] {
+      display: none;
     }
 
     .voice-status,
@@ -1153,6 +1199,10 @@
           <div class="toolbar">
             <input class="search-input" id="searchInput" type="search" placeholder="Cmd/Ctrl + K 搜尋標題、說明、標籤、Prompt、輸出或檢查點">
             <div class="toolbar-actions">
+              <div class="segmented-control" aria-label="Prompt 搜尋範圍">
+                <button class="segment-button active" id="promptSearchScopeCategory" type="button">此分類</button>
+                <button class="segment-button" id="promptSearchScopeAll" type="button">全部</button>
+              </div>
               <button class="button primary" id="addPromptToolbarButton" type="button">➕ 新增卡片</button>
               <button class="button" id="copyVisibleButton" type="button">複製第一張</button>
               <button class="button subtle" id="clearSearchButton" type="button">清除</button>
@@ -1198,6 +1248,32 @@
         <section class="panel pad">
           <h2 class="panel-title">變數控制</h2>
           <p class="panel-note" id="variableHint">先按卡片上的「使用此卡」，這裡會把該卡需要的變數排到最前面。</p>
+          <div class="variable-toolbar">
+            <div class="segmented-control" aria-label="變數顯示範圍">
+              <button class="segment-button active" data-variable-filter="page" id="variableFilterPageButton" type="button">本頁變數</button>
+              <button class="segment-button" data-variable-filter="all" id="variableFilterAllButton" type="button">全部變數</button>
+              <button class="segment-button" data-variable-filter="issues" id="variableFilterIssuesButton" type="button">問題變數</button>
+            </div>
+            <input class="search-input" id="variableSearchInput" type="search" placeholder="搜尋變數名稱或內容">
+            <div class="toolbar-actions">
+              <button class="button" id="refreshVariablesButton" type="button">重新掃描本卡變數</button>
+              <button class="button" id="newVariableToggleButton" type="button">＋ 新增變數</button>
+            </div>
+            <div class="new-variable-panel" id="newVariablePanel" hidden>
+              <div class="field">
+                <label for="newVariableNameInput">變數名稱</label>
+                <input id="newVariableNameInput" type="text" placeholder="例如：Workshop_Topic">
+              </div>
+              <div class="field">
+                <label for="newVariableValueInput">預設值</label>
+                <input id="newVariableValueInput" type="text" placeholder="例如：模型菜教材">
+              </div>
+              <div class="card-actions">
+                <button class="button primary" id="addVariableButton" type="button">新增</button>
+                <button class="button subtle" id="cancelAddVariableButton" type="button">取消</button>
+              </div>
+            </div>
+          </div>
           <div class="field-group" id="variableFields"></div>
         </section>
 
@@ -1433,6 +1509,11 @@
     let selectedVariableKey = "";
     let selectedTagValue = "";
     let visibleCards = [];
+    let variableFilterMode = "page";
+    let variableSearchQuery = "";
+    let variableHintNote = "";
+    let variableRenewTimer = null;
+    let promptSearchScope = "category";
     let deferredInstallPrompt = null;
     let recognition = null;
     let isListening = false;
@@ -1467,13 +1548,26 @@
       copyVisibleButton: document.getElementById("copyVisibleButton"),
       addPromptToolbarButton: document.getElementById("addPromptToolbarButton"),
       clearSearchButton: document.getElementById("clearSearchButton"),
+      promptSearchScopeCategory: document.getElementById("promptSearchScopeCategory"),
+      promptSearchScopeAll: document.getElementById("promptSearchScopeAll"),
       voiceButton: document.getElementById("voiceButton"),
       clearVoiceButton: document.getElementById("clearVoiceButton"),
       voiceTranscript: document.getElementById("voiceTranscript"),
       voiceStatus: document.getElementById("voiceStatus"),
       openOcrWorkbenchButton: document.getElementById("openOcrWorkbenchButton"),
       pwaStatus: document.getElementById("pwaStatus"),
-      conversionStatus: document.getElementById("conversionStatus")
+      conversionStatus: document.getElementById("conversionStatus"),
+      variableSearchInput: document.getElementById("variableSearchInput"),
+      variableFilterPageButton: document.getElementById("variableFilterPageButton"),
+      variableFilterAllButton: document.getElementById("variableFilterAllButton"),
+      variableFilterIssuesButton: document.getElementById("variableFilterIssuesButton"),
+      refreshVariablesButton: document.getElementById("refreshVariablesButton"),
+      newVariableToggleButton: document.getElementById("newVariableToggleButton"),
+      newVariablePanel: document.getElementById("newVariablePanel"),
+      newVariableNameInput: document.getElementById("newVariableNameInput"),
+      newVariableValueInput: document.getElementById("newVariableValueInput"),
+      addVariableButton: document.getElementById("addVariableButton"),
+      cancelAddVariableButton: document.getElementById("cancelAddVariableButton")
     };
 
     Object.assign(els, {
@@ -1544,6 +1638,42 @@
       showToast(`[${key}] 已確認保存。`);
       renderVariables();
       renderCards();
+    }
+
+    function addVariableFromPanel() {
+      const key = els.newVariableNameInput.value.trim();
+      const value = els.newVariableValueInput.value.trim();
+      if (!key) {
+        showToast("請輸入變數名稱。");
+        els.newVariableNameInput.focus();
+        return;
+      }
+      if (!/^[\p{L}][\p{L}\p{N}_-]*$/u.test(key)) {
+        showToast("變數名稱建議用文字、數字、底線或連字號，且不要用空白。");
+        els.newVariableNameInput.focus();
+        return;
+      }
+      if (key in variables || key in savedVariables) {
+        showToast(`[${key}] 已存在。`);
+        els.newVariableNameInput.focus();
+        return;
+      }
+
+      variables[key] = value;
+      savedVariables[key] = value;
+      localStorage.setItem(STORAGE_KEYS.variables, JSON.stringify(savedVariables));
+      selectedVariableKey = key;
+      variableFilterMode = "all";
+      variableSearchQuery = key;
+      els.variableSearchInput.value = key;
+      els.newVariableNameInput.value = "";
+      els.newVariableValueInput.value = "";
+      els.newVariablePanel.hidden = true;
+      renderMetrics();
+      renderVariables();
+      renderCards();
+      renderInsertPickers();
+      showToast(`已新增變數：[${key}]。`);
     }
 
     function isVariableDirty(key) {
@@ -1654,6 +1784,10 @@
         if (index >= 0) return { category, index, prompt: category.items[index] };
       }
       return null;
+    }
+
+    function getPromptCategoryTitle(promptId) {
+      return getPromptLocation(promptId)?.category.title || "";
     }
 
     function parseCommaList(value) {
@@ -1770,9 +1904,57 @@
       }
     }
 
+    function getVariableKeySignature(keys) {
+      return [...new Set(keys)].sort().join("|");
+    }
+
+    function describeNewVariables(beforeKeys, afterKeys) {
+      const before = new Set(beforeKeys);
+      return [...new Set(afterKeys)].filter((key) => !before.has(key));
+    }
+
+    function scheduleVariableRenew(newKeys = []) {
+      window.clearTimeout(variableRenewTimer);
+      variableRenewTimer = window.setTimeout(() => {
+        ensureKnownVariables();
+        if (newKeys.length) {
+          variableHintNote = `已偵測到新變數：${newKeys.map((key) => `[${key}]`).join("、")}。`;
+        }
+        renderVariables();
+        renderInsertPickers();
+      }, 180);
+    }
+
+    function refreshActivePromptVariables(manual = false) {
+      const targetPrompt = promptDraft || getActivePrompt();
+      if (!targetPrompt) {
+        showToast("請先使用或編輯一張 Prompt 卡片。");
+        return;
+      }
+
+      const nextVariables = extractVariables(targetPrompt.promptText);
+      if (promptDraft) {
+        promptDraft = normalizePrompt({ ...promptDraft, variables: nextVariables });
+      } else {
+        targetPrompt.variables = nextVariables;
+        saveState();
+      }
+
+      variableFilterMode = "page";
+      variableHintNote = manual
+        ? `已重新掃描本卡變數：${nextVariables.map((key) => `[${key}]`).join("、") || "無變數"}。`
+        : variableHintNote;
+      ensureKnownVariables();
+      renderVariables();
+      renderCards();
+      renderInsertPickers();
+      if (manual) showToast("已重新掃描本卡變數。");
+    }
+
     function updatePromptDraftField(field, value) {
       const original = getEditingPrompt();
       if (!original || !promptDraft) return;
+      const previousVariables = [...promptDraft.variables];
 
       const nextDraft = {
         ...promptDraft,
@@ -1792,6 +1974,9 @@
       ensureKnownVariables();
       renderLivePromptPreview(promptDraft);
       renderPromptEditorState();
+      if (field === "promptText" && getVariableKeySignature(previousVariables) !== getVariableKeySignature(promptDraft.variables)) {
+        scheduleVariableRenew(describeNewVariables(previousVariables, promptDraft.variables));
+      }
     }
 
     function saveCurrentPromptDraft() {
@@ -1904,14 +2089,57 @@
       return prompt;
     }
 
-    function getVariableEntriesForDisplay() {
+    function getActiveVariableKeys() {
       const activePrompt = getActivePrompt();
-      const activeKeys = activePrompt ? getDisplayPrompt(activePrompt).variables : [];
-      const orderedKeys = [
-        ...activeKeys,
-        ...Object.keys(variables).filter((key) => !activeKeys.includes(key))
-      ];
-      return orderedKeys.map((key) => [key, variables[key] || ""]);
+      return activePrompt ? getDisplayPrompt(activePrompt).variables : [];
+    }
+
+    function getVariableIssueKeys(keys = getKnownVariableKeys()) {
+      const activeKeys = getActiveVariableKeys();
+      const scopedKeys = variableFilterMode === "all" ? keys : activeKeys;
+      return [...new Set(scopedKeys)].filter((key) => !(key in variables) || !String(variables[key] || "").trim());
+    }
+
+    function getVariableStatus(key) {
+      if (!(key in variables)) return "missing";
+      if (!String(variables[key] || "").trim()) return "empty";
+      return "ready";
+    }
+
+    function getVariableEntriesForDisplay() {
+      const activeKeys = getActiveVariableKeys();
+      const allKeys = getKnownVariableKeys();
+      let orderedKeys = [];
+
+      if (variableFilterMode === "all") {
+        orderedKeys = [
+          ...activeKeys,
+          ...allKeys.filter((key) => !activeKeys.includes(key))
+        ];
+      } else if (variableFilterMode === "issues") {
+        orderedKeys = getVariableIssueKeys(allKeys);
+      } else {
+        orderedKeys = activeKeys;
+      }
+
+      const query = variableSearchQuery.trim().toLowerCase();
+      const uniqueKeys = [...new Set(orderedKeys)];
+      return uniqueKeys
+        .filter((key) => {
+          if (!query) return true;
+          return key.toLowerCase().includes(query) || String(variables[key] || "").toLowerCase().includes(query);
+        })
+        .map((key) => [key, variables[key] || ""]);
+    }
+
+    function setVariableFilterMode(mode) {
+      variableFilterMode = mode;
+      renderVariables();
+    }
+
+    function setPromptSearchScope(scope) {
+      promptSearchScope = scope;
+      renderCards();
     }
 
     function renderMetrics() {
@@ -1953,20 +2181,52 @@
       els.variableFields.replaceChildren();
       ensureKnownVariables();
       const activePrompt = getActivePrompt();
+      const activeKeys = getActiveVariableKeys();
+      const issueKeys = getVariableIssueKeys();
+      const modeLabels = {
+        page: "本頁變數",
+        all: "全部變數",
+        issues: "問題變數"
+      };
+      [
+        [els.variableFilterPageButton, "page"],
+        [els.variableFilterAllButton, "all"],
+        [els.variableFilterIssuesButton, "issues"]
+      ].forEach(([button, mode]) => {
+        button.classList.toggle("active", variableFilterMode === mode);
+      });
       if (activePrompt) {
         const displayPrompt = getDisplayPrompt(activePrompt);
-        els.variableHint.textContent = `目前使用：${displayPrompt.title}。這張卡會用到：${displayPrompt.variables.map((key) => `[${key}]`).join("、") || "無變數"}。輸入會先套用到預覽；按欄位旁「確認保存」才覆蓋本機保存值。`;
+        const issueText = issueKeys.length ? `目前有 ${issueKeys.length} 個問題變數。` : "目前沒有問題變數。";
+        els.variableHint.textContent = `目前使用：${displayPrompt.title}。顯示：${modeLabels[variableFilterMode]}。這張卡會用到：${displayPrompt.variables.map((key) => `[${key}]`).join("、") || "無變數"}。${issueText}${variableHintNote ? ` ${variableHintNote}` : ""}`;
       } else {
-        els.variableHint.textContent = "先按卡片上的「使用此卡」，這裡會把該卡需要的變數排到最前面。輸入會先套用到預覽；按欄位旁「確認保存」才覆蓋本機保存值。";
+        els.variableHint.textContent = `顯示：${modeLabels[variableFilterMode]}。先按卡片上的「使用此卡」，這裡會把該卡需要的變數排到最前面。${variableHintNote ? ` ${variableHintNote}` : ""}`;
       }
 
-      getVariableEntriesForDisplay().forEach(([key, value]) => {
+      const entries = getVariableEntriesForDisplay();
+      if (entries.length === 0) {
+        const message = variableFilterMode === "page" && activeKeys.length === 0
+          ? "這張卡目前沒有使用變數。"
+          : variableFilterMode === "issues"
+            ? "目前沒有需要處理的問題變數。"
+            : "沒有符合搜尋條件的變數。";
+        els.variableFields.append(emptyNode(message));
+        return;
+      }
+
+      entries.forEach(([key, value]) => {
         const field = document.createElement("div");
         field.className = "field";
 
         const label = document.createElement("label");
         label.htmlFor = `var-${key}`;
-        label.textContent = `[${key}]`;
+        const variableStatus = getVariableStatus(key);
+        const statusText = {
+          ready: "",
+          empty: "（未填）",
+          missing: "（不存在）"
+        }[variableStatus];
+        label.textContent = `[${key}] ${statusText}`;
 
         const input = ["OCR_Text", "Voice_Text", "Material_JSON"].includes(key)
           ? document.createElement("textarea")
@@ -1978,7 +2238,9 @@
 
         const state = document.createElement("span");
         state.className = `field-state ${isVariableDirty(key) ? "dirty" : ""}`;
-        state.textContent = isVariableDirty(key) ? "未保存變更" : "已保存";
+        state.textContent = variableStatus === "empty"
+          ? "未填值"
+          : isVariableDirty(key) ? "未保存變更" : "已保存";
 
         const saveButton = document.createElement("button");
         saveButton.type = "button";
@@ -2160,6 +2422,8 @@
     function renderCards() {
       const category = database.find((item) => item.id === activeCategoryId) || database[0];
       const query = els.searchInput.value.trim().toLowerCase();
+      els.promptSearchScopeCategory.classList.toggle("active", promptSearchScope === "category");
+      els.promptSearchScopeAll.classList.toggle("active", promptSearchScope === "all");
 
       if (!category) {
         els.cardGrid.replaceChildren(emptyNode("目前沒有 Prompt 資料。"));
@@ -2167,9 +2431,15 @@
         return;
       }
 
-      visibleCards = category.items.filter((prompt) => {
+      const promptSource = promptSearchScope === "all"
+        ? database.flatMap((item) => item.items.map((prompt) => ({ prompt, category: item })))
+        : category.items.map((prompt) => ({ prompt, category }));
+
+      visibleCards = promptSource.filter(({ prompt, category: promptCategory }) => {
         const displayPrompt = getDisplayPrompt(prompt);
         const haystack = [
+          promptCategory.title,
+          promptCategory.description,
           displayPrompt.title,
           displayPrompt.description,
           displayPrompt.promptText,
@@ -2180,12 +2450,12 @@
           ...displayPrompt.tags
         ].join(" ").toLowerCase();
         return !query || haystack.includes(query);
-      });
+      }).map(({ prompt }) => prompt);
 
       els.cardGrid.replaceChildren();
 
       if (visibleCards.length === 0) {
-        if (category.items.length === 0) {
+        if (promptSearchScope === "category" && category.items.length === 0) {
           const emptyDiv = document.createElement("div");
           emptyDiv.className = "empty";
           emptyDiv.style.flexDirection = "column";
@@ -2206,7 +2476,7 @@
           emptyDiv.append(textSpan, addBtn);
           els.cardGrid.append(emptyDiv);
         } else {
-          els.cardGrid.append(emptyNode("沒有符合搜尋條件的 Prompt。"));
+          els.cardGrid.append(emptyNode(promptSearchScope === "all" ? "全場域沒有符合搜尋條件的 Prompt。" : "沒有符合搜尋條件的 Prompt。"));
         }
         return;
       }
@@ -2411,6 +2681,7 @@
         insertTextAtCursor(textarea, `[${key}]`);
         updatePromptDraftField("promptText", textarea.value);
         updateFieldLivePreview(livePreview.body, textarea.value, "此卡尚未填寫 Prompt 內容。");
+        refreshActivePromptVariables(false);
       });
       const voiceButton = document.createElement("button");
       voiceButton.type = "button";
@@ -2496,6 +2767,10 @@
 
       const metaRow = document.createElement("div");
       metaRow.className = "meta-row";
+      if (promptSearchScope === "all") {
+        const categoryTitle = getPromptCategoryTitle(prompt.id);
+        if (categoryTitle) metaRow.append(pill(categoryTitle, "meta"));
+      }
       for (const label of displayPrompt.variables.map((variable) => `[${variable}]`)) {
         metaRow.append(pill(label, "meta"));
       }
@@ -3383,9 +3658,33 @@
     els.themeSelect.addEventListener("change", () => setTheme(els.themeSelect.value));
 
     els.searchInput.addEventListener("input", renderCards);
+    els.promptSearchScopeCategory.addEventListener("click", () => setPromptSearchScope("category"));
+    els.promptSearchScopeAll.addEventListener("click", () => setPromptSearchScope("all"));
     els.clearSearchButton.addEventListener("click", () => {
       els.searchInput.value = "";
       renderCards();
+    });
+
+    els.variableFilterPageButton.addEventListener("click", () => setVariableFilterMode("page"));
+    els.variableFilterAllButton.addEventListener("click", () => setVariableFilterMode("all"));
+    els.variableFilterIssuesButton.addEventListener("click", () => setVariableFilterMode("issues"));
+    els.variableSearchInput.addEventListener("input", () => {
+      variableSearchQuery = els.variableSearchInput.value;
+      renderVariables();
+    });
+    els.refreshVariablesButton.addEventListener("click", () => refreshActivePromptVariables(true));
+    els.newVariableToggleButton.addEventListener("click", () => {
+      els.newVariablePanel.hidden = !els.newVariablePanel.hidden;
+      if (!els.newVariablePanel.hidden) els.newVariableNameInput.focus();
+    });
+    els.addVariableButton.addEventListener("click", addVariableFromPanel);
+    els.cancelAddVariableButton.addEventListener("click", () => {
+      els.newVariableNameInput.value = "";
+      els.newVariableValueInput.value = "";
+      els.newVariablePanel.hidden = true;
+    });
+    els.newVariableValueInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addVariableFromPanel();
     });
 
     els.copyVisibleButton.addEventListener("click", () => {
