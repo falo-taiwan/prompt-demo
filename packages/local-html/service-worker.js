@@ -1,4 +1,4 @@
-const CACHE_NAME = "falo-prompt-manager-v101-voice-capture1";
+const CACHE_NAME = "falo-prompt-manager-v2.2";
 const APP_SHELL = [
   "./",
   "./index.html",
