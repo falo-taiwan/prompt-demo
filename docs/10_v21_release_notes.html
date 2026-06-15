@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="FALO Prompt Manager v2.1 release notes for Falo x Force Cheng, including extension handshake, heartbeat, font sizing, sticky variables panel, and auto backup script.">
+  <meta name="author" content="Falo x Force Cheng">
+  <meta name="version" content="v2.1">
+  <meta name="release-date" content="2026-06-15">
+  <meta name="geo.region" content="TW">
+  <meta name="geo.placename" content="Taiwan">
+  <meta name="geo.position" content="23.6978;120.9605">
+  <meta name="ICBM" content="23.6978, 120.9605">
+  <title>FALO Prompt Manager v2.1 Release Notes</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --paper: #1e293b;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --accent: #2dd4bf;
+      --accent-strong: #0d9488;
+      --accent-soft: rgba(45, 212, 191, 0.15);
+      --blue: #38bdf8;
+      --orange: #fb923c;
+      --code: #0f172a;
+      --radius: 8px;
+      --shadow: 0 18px 45px rgba(13, 148, 136, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      line-height: 1.7;
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 72px;
+    }
+
+    .hero,
+    section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 34px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-weight: 850;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 42px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .lead {
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 840px;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 18px;
+    }
+
+    .nav a {
+      color: var(--ink);
+      background: var(--line);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .nav a:hover {
+      background: var(--accent-strong);
+      color: #fff;
+    }
+
+    section {
+      padding: 30px;
+      margin: 18px 0;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 24px;
+      line-height: 1.25;
+      color: var(--accent);
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+      line-height: 1.3;
+      color: var(--blue);
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    ul,
+    ol {
+      padding-left: 1.35rem;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 14px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-weight: 600;
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 42, 0.3);
+      padding: 16px;
+    }
+
+    .mini h3 {
+      margin-top: 0;
+    }
+
+    code {
+      background: var(--code);
+      border-radius: 5px;
+      padding: 2px 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      color: var(--orange);
+    }
+
+    pre {
+      overflow-x: auto;
+      background: #020617;
+      color: #e2e8f0;
+      border-radius: var(--radius);
+      padding: 16px;
+      line-height: 1.55;
+    }
+
+    .tagline {
+      color: var(--muted);
+      text-align: center;
+      font-weight: 600;
+      margin-top: 32px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    a:hover {
+      color: var(--blue);
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      section {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">v2.1 · Falo x Force Cheng · 2026/6/15</p>
+      <h1>FALO Prompt Manager Release Notes</h1>
+      <p class="lead">這份人讀版整理 v2.1 的發布標記、雙向握手機制、多 PWA 連線選單、置頂固定變數面板、五級字型調整與自動備份腳本。</p>
+    </header>
+
+    <nav class="nav" aria-label="章節">
+      <a href="#identity">版本</a>
+      <a href="#changes">修訂</a>
+      <a href="#extension">衛星外掛</a>
+      <a href="#checks">發布</a>
+    </nav>
+
+    <section id="identity">
+      <h2>1. 版本標記</h2>
+      <table>
+        <tr><th>欄位</th><th>內容</th></tr>
+        <tr><td>Version</td><td>v2.1</td></tr>
+        <tr><td>Brand</td><td>Falo x Force Cheng</td></tr>
+        <tr><td>Release Date</td><td>2026/6/15</td></tr>
+        <tr><td>Geo</td><td>Taiwan</td></tr>
+        <tr><td>Product Line</td><td>FALO Prompt</td></tr>
+        <tr><td>Delivery</td><td>PWA (地端中心) &amp; Chrome Extension (衛星外掛) &amp; 專屬自動打包工具</td></tr>
+      </table>
+      <p>公開展示入口：<a href="https://falo-taiwan.github.io/prompt-demo/">https://falo-taiwan.github.io/prompt-demo/</a> 或 <a href="https://falo-taiwan.github.io/prompt-demo/index.html">https://falo-taiwan.github.io/prompt-demo/index.html</a>。</p>
+      <p>根目錄 <code>index.html</code> 是正式 PWA 展示版。<code>packages/local-html/index.html</code> 與其保持同步。</p>
+      <div class="callout">FALO Prompt Manager v2.1 實現了地端 PWA 與 Chrome 衛星外掛的深度整合與雙向狀態感知。</div>
+    </section>
+
+    <section id="changes">
+      <h2>2. 本版修訂重點</h2>
+      <div class="grid">
+        <div class="mini">
+          <h3>雙向握手</h3>
+          <p>PWA 提供連線徽章與指示燈；外掛定時發送 PING 心跳，斷開自動偵測並切換狀態。</p>
+        </div>
+        <div class="mini">
+          <h3>置頂變數</h3>
+          <p>外掛頂部新增固定顯示的變數輸入框，即時快取記憶，告別在卡片中反覆滾動尋找。</p>
+        </div>
+        <div class="mini">
+          <h3>多 PWA 切換</h3>
+          <p>開啟多個主分頁時，外掛自動提供下拉選單自由選定要連線並同步的目標 PWA 分頁。</p>
+        </div>
+      </div>
+      <h3>字型調整與自動備份</h3>
+      <p>側邊欄整合了 5 級字型縮放按鈕。新增 <code>backup/backup_prompt_manager.py</code> 自動將代碼封裝並隨附最新 changelog.txt 至 zip 壓縮檔。</p>
+      <pre><code>FALO Prompt Manager v2.1 | Falo x Force Cheng | 2026/6/15 | Taiwan | PWA &amp; Chrome Extension Handshake Sync</code></pre>
+    </section>
+
+    <section id="extension">
+      <h2>3. 衛星控制台外掛升級</h2>
+      <h3>置頂固定變數面板 (Sticky Variables Panel)</h3>
+      <p>外掛側邊欄最頂端加入了固定定位的變數區，變數輸入會透過 <code>chrome.storage.local</code> 快取儲存。卡片內容裡的對應欄位會即時跟隨變更進行編譯預覽。</p>
+      <h3>字型縮放 (Font Scaling)</h3>
+      <p>頂部提供 <code>-</code> 與 <code>+</code> 按鈕控制 1 至 5 等級的字型大小（快取至本地設定），字型大小在極限範圍內縮放，利於在高解析度或側邊欄精簡視窗中閱讀。</p>
+      <h3>1 對多與多對 1 同步</h3>
+      <p>外掛利用 <code>chrome.scripting.executeScript</code> 掃描所有開啟的 PWA 標籤，讀取 <code>window.__FALO_PWA_METADATA__</code> 以避免誤判定。使用者可切換目標並精準執行拉取 (Pull) 與推送 (Push)。</p>
+    </section>
+
+    <section id="checks">
+      <h2>4. 發布異動檔案</h2>
+      <ul>
+        <li><code>index.html</code> (根目錄 &amp; packages/local-html)</li>
+        <li><code>manifest.webmanifest</code> (根目錄 &amp; packages/local-html)</li>
+        <li><code>packages/chrome-extension/manifest.json</code></li>
+        <li><code>packages/chrome-extension/sidepanel.html / .js / .css</code></li>
+        <li><code>scripts/verify_pwa.mjs</code></li>
+        <li><code>docs/02_version_map.md</code></li>
+        <li><code>backup/backup_prompt_manager.py</code></li>
+      </ul>
+    </section>
+
+    <p class="tagline">FALO Prompt Manager v2.1 · Falo x Force Cheng · Taiwan</p>
+  </main>
+</body>
+</html>
