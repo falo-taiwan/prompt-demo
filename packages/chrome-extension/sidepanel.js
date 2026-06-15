@@ -460,6 +460,7 @@ function renderAccordion() {
       </div>
     `;
   }
+  updateFixedVariablesPanel();
 }
 
 function updateFixedVariablesPanel() {
