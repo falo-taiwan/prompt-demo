@@ -33,8 +33,8 @@ for (const appDir of appDirs) {
 
   const index = read(indexPath);
   const manifest = JSON.parse(read(manifestPath));
-  assert.equal(manifest.name, "FALO Prompt Manager v1.01");
-  assert.equal(manifest.version, "v1.01");
+  assert.equal(manifest.name, "FALO Prompt Manager v2.1");
+  assert.equal(manifest.version, "v2.1");
   assert.equal(manifest.author, "Falo x Force Cheng");
   assert.equal(manifest.display, "standalone");
   assert.equal(manifest.start_url, "./index.html");

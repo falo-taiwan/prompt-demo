@@ -1,0 +1,176 @@
+[
+  {
+    "id": "basic-management",
+    "title": "01_基礎 Prompt 管理",
+    "description": "用來示範 Prompt 如何被分類、變數化、匯入匯出與備份。",
+    "items": [
+      {
+        "id": "prompt-asset-explainer",
+        "title": "把 Prompt 說成可管理資產",
+        "description": "用給初學者聽得懂的方式，說明 Prompt 不是一次性文字，而是可管理的工作流資產。",
+        "promptText": "請用初學者聽得懂的方式，說明為什麼 Prompt 不只是聊天文字，而是可以被分類、變數化、備份與重複使用的工作流資產。請用三段式：直覺比喻、實務例子、下一步行動。",
+        "tags": ["教學", "Prompt Asset", "入門"],
+        "status": "stable",
+        "variables": [],
+        "expectedOutput": "一段可放進教材的說明文字。",
+        "humanReviewPoints": ["是否避免過度技術術語", "是否能讓非工程背景理解"]
+      },
+      {
+        "id": "model-dish-intro",
+        "title": "模型菜概念說明",
+        "description": "把 Prompt Card、Workflow、變數、AI Model 用模型菜比喻串起來。",
+        "promptText": "請用「模型菜」比喻，說明 Prompt Card 是一道菜、Workflow 是套餐、變數是食材、AI Model 是廚師、人工審查是品管。請產出適合課堂投影片的一頁說明。",
+        "tags": ["模型菜", "教學", "Workflow"],
+        "status": "stable",
+        "variables": [],
+        "expectedOutput": "一頁式課堂說明，可轉成投影片。",
+        "humanReviewPoints": ["比喻是否清楚", "是否避免把工具講成大型平台"]
+      }
+    ]
+  },
+  {
+    "id": "rfp-workflow",
+    "title": "02_RFP / 標案工作流",
+    "description": "示範 Prompt 如何成為標案工作流中的步驟。",
+    "items": [
+      {
+        "id": "rfp-checklist",
+        "title": "讀取外部 RFP 自動預判 Checklist",
+        "description": "讓 AI 協助理解招標書中的剛性要求，先整理出廠商實績、PM 證照、SLA、資安切結等重點。",
+        "promptText": "請深度閱讀 [RFP_Path]，自主分析此招標案的合規要求，並以 checklist 形式列出四大合規需求。",
+        "tags": ["RFP", "合規", "Phase 1"],
+        "status": "stable",
+        "variables": ["RFP_Path"],
+        "expectedOutput": "四大合規需求 checklist。",
+        "humanReviewPoints": ["條款是否漏讀", "是否把建議誤寫成事實", "是否需要回看原始 RFP"]
+      },
+      {
+        "id": "sla-warning",
+        "title": "SLA 維護響應衝突與內部亮燈",
+        "description": "外部要求比內部標準更嚴時，讓 AI 同時產出對外回應與內部風險提醒。",
+        "promptText": "請對比外部 [Client] 要求的 [Target_SLA] 緊急維護響應，與公司內部標配的 4 小時響應。請產出：1. 對外可接受的標書改寫；2. 內部成本與資源調度風險提醒。",
+        "tags": ["SLA", "治理", "風險"],
+        "status": "stable",
+        "variables": ["Client", "Target_SLA"],
+        "expectedOutput": "對外文字與內部風險提醒各一段。",
+        "humanReviewPoints": ["是否承諾過度", "成本風險是否被明確標出"]
+      }
+    ]
+  },
+  {
+    "id": "field-memory",
+    "title": "03_現場經驗轉 Prompt",
+    "description": "將課程案例、現場踩坑與組織記憶轉成可重複使用的提示詞。",
+    "items": [
+      {
+        "id": "supplier-letter",
+        "title": "廠商行前規範函",
+        "description": "根據歷史案例生成給施工或協力廠商的行前規範通知。",
+        "promptText": "如果下一個專案在 [Location] 舉辦，請根據過去電線固定、動線安全與噪音控管問題，寫一封給廠商的行前規範通知信。語氣需專業、明確、可執行。",
+        "tags": ["SOP", "廠商", "現場安全"],
+        "status": "stable",
+        "variables": ["Location"],
+        "expectedOutput": "一封可給廠商的行前規範通知。",
+        "humanReviewPoints": ["語氣是否專業", "要求是否具體", "是否需要補上罰則或驗收方式"]
+      }
+    ]
+  },
+  {
+    "id": "ocr-transform",
+    "title": "04_OCR 資料轉換",
+    "description": "OCR 是資料入口：把歷史文件、拍照 idea、手寫文件、截圖轉成可用素材。",
+    "items": [
+      {
+        "id": "ocr-handwritten-summary",
+        "title": "手寫文件轉結構化摘要",
+        "description": "把手寫筆記或拍照文件整理成段落、重點與待辦。",
+        "promptText": "請將以下 OCR 文字整理成摘要、重點、待辦事項與需要人工確認的模糊處：\n[OCR_Text]",
+        "tags": ["OCR", "手寫", "摘要"],
+        "status": "stable",
+        "variables": ["OCR_Text"],
+        "expectedOutput": "摘要、重點、待辦事項、需要人工確認的模糊處。",
+        "humanReviewPoints": ["人名是否辨識正確", "日期是否正確", "手寫模糊字是否需要回看原圖"]
+      },
+      {
+        "id": "ocr-table-to-json",
+        "title": "截圖表格轉 JSON",
+        "description": "把圖片或截圖中的表格 OCR 結果轉為可匯入或再加工的 JSON。",
+        "promptText": "請將以下 OCR 表格文字轉成乾淨 JSON。若欄位不確定，請用 null 並列出 riskNotes：\n[OCR_Text]",
+        "tags": ["OCR", "JSON", "表格"],
+        "status": "stable",
+        "variables": ["OCR_Text"],
+        "expectedOutput": "JSON 資料與 riskNotes。",
+        "humanReviewPoints": ["欄位是否錯位", "數字是否辨識錯誤", "是否有漏列"]
+      },
+      {
+        "id": "gemini-ocr-image-strategy",
+        "title": "Gemini OCR 影像策略檢查",
+        "description": "參考 aiocr-pro01 / gemini35-ocr，檢查圖片是否適合送入 Gemini OCR。",
+        "promptText": "請根據以下影像 metadata，判斷是否適合送入 Gemini OCR。請檢查：1. 是否需要轉 WebP 768；2. 是否不應放大；3. 是否應改用 PNG standard 或較高解析策略；4. 應記錄哪些 metadata；5. 送出前的人審提醒。請用 JSON + 短說明輸出。\n[Material_JSON]",
+        "tags": ["Gemini OCR", "影像策略", "JSON Connect"],
+        "status": "draft",
+        "variables": ["Material_JSON"],
+        "expectedOutput": "影像送出策略建議、metadata 檢查清單、人工審查提醒。",
+        "humanReviewPoints": ["是否避免放大小圖", "是否未保存圖片 bytes", "是否確認 API key 不被寫入匯出資料"]
+      }
+    ]
+  },
+  {
+    "id": "voice-input",
+    "title": "05_Voice 口述輸入",
+    "description": "用最輕量 Web Speech API，把口述 idea、課堂即席說明、會議片段轉成 Prompt 素材。",
+    "items": [
+      {
+        "id": "voice-idea-to-actions",
+        "title": "口述 idea 轉任務清單",
+        "description": "把臨場口述內容整理成可以追蹤的任務清單。",
+        "promptText": "請將以下口述內容整理成：摘要、任務清單、可能風險、下一步建議：\n[Voice_Text]",
+        "tags": ["Voice", "口述", "任務"],
+        "status": "stable",
+        "variables": ["Voice_Text"],
+        "expectedOutput": "摘要、任務、負責人或待補資訊、下一步。",
+        "humanReviewPoints": ["語音辨識是否誤聽", "任務是否過度推論", "是否需要補充時間或負責人"]
+      },
+      {
+        "id": "voice-class-note",
+        "title": "課堂即席筆記整理",
+        "description": "把老師口頭補充或課堂討論整理成教材補充筆記。",
+        "promptText": "請把以下課堂口述內容整理成：核心觀念、例子、可放入 README 的段落、可放入投影片的條列：\n[Voice_Text]",
+        "tags": ["Voice", "課堂", "筆記"],
+        "status": "stable",
+        "variables": ["Voice_Text"],
+        "expectedOutput": "核心觀念、例子、README 段落、投影片條列。",
+        "humanReviewPoints": ["是否保留老師原意", "是否需要補上下文", "是否過度美化"]
+      }
+    ]
+  },
+  {
+    "id": "json-connect",
+    "title": "06_JSON Connect 匯入整理",
+    "description": "讓 Gemini Gem、ChatGPT GPTs 或外部 OCR 小工具輸出標準 JSON，再接進 Prompt Manager。",
+    "items": [
+      {
+        "id": "input-material-json-cleanup",
+        "title": "Input Material JSON 清理",
+        "description": "把外部工具輸出的素材 JSON 整理成系統可讀格式。",
+        "promptText": "請檢查以下 Input Material JSON，修正欄位命名、補上 suggestedTags，並列出需要人工確認的地方：\n[Material_JSON]",
+        "tags": ["JSON Connect", "Input Material", "整理"],
+        "status": "stable",
+        "variables": ["Material_JSON"],
+        "expectedOutput": "清理後 JSON 與人工確認清單。",
+        "humanReviewPoints": ["JSON 是否有效", "來源是否標清楚", "是否混入敏感資料"]
+      },
+      {
+        "id": "material-to-variables",
+        "title": "素材轉 Prompt 變數",
+        "description": "從 OCR 或語音素材中抽出可放進 Prompt Manager 的變數。",
+        "promptText": "請從以下素材中抽出可用變數，輸出 JSON：Topic、Client、Owner、Date、Location、Voice_Text、OCR_Text。若沒有資料請用空字串：\n[Material_JSON]",
+        "tags": ["JSON Connect", "變數", "資料轉換"],
+        "status": "stable",
+        "variables": ["Material_JSON"],
+        "expectedOutput": "可貼回 Prompt Manager 的 variables JSON。",
+        "humanReviewPoints": ["是否把推測內容當成事實", "欄位是否有來源依據"]
+      }
+    ]
+  }
+]

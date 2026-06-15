@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FALO Prompt Satellite</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand-row">
+        <span class="logo">🛰️</span>
+        <div class="brand-info">
+          <h1>FALO Prompt</h1>
+          <span class="sub">衛星控制台 <span id="appVersion">v2.1</span></span>
+        </div>
+        <div class="header-controls" style="margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+          <!-- Mode Switcher -->
+          <div class="segmented-control" id="uiModeSelector">
+            <button class="mode-btn active" data-mode="compact" title="精簡模式：專注複製與自動填入">精簡</button>
+            <button class="mode-btn" data-mode="full" title="完整模式：支援同步、匯出與編輯">完整</button>
+          </div>
+          <!-- Theme Switcher Dots -->
+          <div class="theme-switcher" id="themeSwitcher">
+            <button class="theme-dot dot-light active" data-theme="light" title="淺色模式 (Light)"></button>
+            <button class="theme-dot dot-dark" data-theme="dark" title="深色模式 (Obsidian)"></button>
+            <button class="theme-dot dot-pink" data-theme="pink" title="粉色模式 (Cherry Blossom)"></button>
+            <button class="theme-dot dot-warm" data-theme="warm" title="暖色模式 (Cozy Amber)"></button>
+            <button class="theme-dot dot-cyber" data-theme="cyber" title="賽博模式 (Cyberpunk)"></button>
+          </div>
+          <!-- Font Size Adjuster -->
+          <div class="font-size-adjuster" id="fontSizeAdjuster">
+            <button id="fontDecBtn" class="btn-adjust" title="縮小字型">-</button>
+            <span id="fontSizeLvl" class="adjust-lvl">3</span>
+            <button id="fontIncBtn" class="btn-adjust" title="放大字型">+</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sync Panel -->
+      <div class="sync-panel">
+        <div class="sync-status" style="display: flex; align-items: center; gap: 4px; overflow: hidden; max-width: 170px;">
+          <span class="status-indicator" id="syncIndicator"></span>
+          <select id="pwaTargetSelector" class="select-pwa" style="display: none;"></select>
+          <span id="syncStatusText">偵測中...</span>
+        </div>
+        <div class="sync-actions">
+          <button id="syncPullBtn" class="btn btn-sm btn-outline" title="拉取地端 PWA 網頁最新資料">
+            📥 拉取
+          </button>
+          <button id="syncPushBtn" class="btn btn-sm btn-outline" title="推送外掛變更至地端 PWA 網頁">
+            📤 推送
+          </button>
+        </div>
+      </div>
+
+      <!-- File Actions -->
+      <div class="file-actions">
+        <button id="importBtn" class="btn btn-xs btn-outline" title="匯入備份 CSV">匯入 CSV</button>
+        <button id="exportBtn" class="btn btn-xs btn-outline" title="匯出當前 CSV">匯出 CSV</button>
+        <button id="resetBtn" class="btn btn-xs btn-danger" title="還原為預設教材題庫">還原預設值</button>
+        <input type="file" id="fileInput" accept=".csv" style="display: none;">
+      </div>
+    </header>
+
+    <!-- Search & Filters -->
+    <section class="search-section">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜尋提示詞、描述或標籤...">
+      </div>
+      <div class="tags-container" id="tagsFilterContainer">
+        <!-- Tags pills will be rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Database Stats -->
+    <div class="db-meta">
+      <span id="dbSourceText">內建教材庫</span>
+      <span id="dbCountText">0 張卡片</span>
+    </div>
+
+    <!-- Fixed Variables Panel (collapsible/sticky at top) -->
+    <section class="fixed-variables-container" id="fixedVariablesPanel" style="display: none;">
+      <!-- Renders dynamically when card with variables is expanded -->
+    </section>
+
+    <!-- Categories Accordion Container -->
+    <main class="main-content">
+      <div class="accordion" id="categoryAccordion">
+        <!-- Categories and cards will be rendered dynamically -->
+      </div>
+    </main>
+
+    <!-- Floating Action Button to Add New Prompt Card -->
+    <div class="fab-container">
+      <button id="addPromptBtn" class="btn-fab" title="新增提示詞卡片">+</button>
+    </div>
+
+    <!-- Edit Modal Overlay -->
+    <div class="modal-overlay" id="editModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTitle">編輯提示詞卡片</h3>
+          <button class="close-btn" id="closeModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="promptForm">
+            <input type="hidden" id="editCardId">
+            
+            <div class="form-group">
+              <label for="formCategory">所屬分類</label>
+              <select id="formCategory" required>
+                <!-- Categories list will be populated dynamically -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="formTitle">卡片標題</label>
+              <input type="text" id="formTitle" required placeholder="例如：RFP 剛性合規分析">
+            </div>
+
+            <div class="form-group">
+              <label for="formDescription">用途說明與預期輸出</label>
+              <textarea id="formDescription" rows="2" placeholder="說明此 Prompt 適合的場景及 AI 的輸出預期..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="formPromptText">Prompt 範本本文</label>
+              <textarea id="formPromptText" rows="6" required placeholder="請輸入 Prompt 文字，變數請用 [變數名] 或 {{變數名}} 標示"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="formTags">標籤 (逗號分隔)</label>
+              <input type="text" id="formTags" placeholder="RFP, 合規, 標案">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="formStatus">狀態</label>
+                <select id="formStatus">
+                  <option value="stable">stable (穩定)</option>
+                  <option value="draft">draft (草稿)</option>
+                  <option value="review">review (評審)</option>
+                  <option value="deprecated">deprecated (廢棄)</option>
+                </select>
+              </div>
+              <div class="form-group half">
+                <label for="formTargetAI">適用 AI</label>
+                <input type="text" id="formTargetAI" placeholder="ChatGPT/Gemini">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="formHumanReview">人工查核要點 (每行點列一項)</label>
+              <textarea id="formHumanReview" rows="2" placeholder="例：查核證照是否過期&#10;例：金額是否滿足 RFP 限額"></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" id="cancelModalBtn" class="btn btn-outline">取消</button>
+              <button type="submit" class="btn btn-primary">儲存</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

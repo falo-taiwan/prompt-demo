@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "FALO Prompt Manager",
+  "version": "2.1.0",
+  "description": "FALO Prompt 主中心的衛星側邊欄工具，支援自動填入 AI 對話框與地端資料同步。",
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://localhost/*",
+    "*://127.0.0.1/*",
+    "*://falo-taiwan.github.io/*",
+    "*://falo-chinese.github.io/*",
+    "*://chatgpt.com/*",
+    "*://*.chatgpt.com/*",
+    "*://gemini.google.com/*",
+    "*://claude.ai/*",
+    "*://*.claude.ai/*",
+    "*://notebooklm.google.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "action": {
+    "default_title": "開啟 FALO Prompt Manager 側邊欄",
+    "default_icon": {
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png",
+      "128": "icon-128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://chatgpt.com/*",
+        "*://*.chatgpt.com/*",
+        "*://gemini.google.com/*",
+        "*://claude.ai/*",
+        "*://*.claude.ai/*",
+        "*://notebooklm.google.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}

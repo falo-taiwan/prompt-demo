@@ -4,21 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <meta name="description" content="FALO Prompt Manager v1.01 is a local-first PWA for prompt asset management, model-dish teaching, variables, workflow prompt cards, OCR entry, voice input, and JSON Connect.">
+  <meta name="description" content="FALO Prompt Manager v2.1 is a local-first PWA for prompt asset management, model-dish teaching, variables, workflow prompt cards, OCR entry, voice input, and JSON Connect.">
   <meta name="author" content="Falo x Force Cheng">
   <meta name="keywords" content="FALO Prompt Manager, Prompt Asset Management, Prompt Card, AI Workflow, model dish, Falo x Force Cheng, OCR, Voice, JSON Connect, PWA, Taiwan">
-  <meta name="version" content="v1.01">
-  <meta name="release-date" content="2026-06-01">
+  <meta name="version" content="v2.1">
+  <meta name="release-date" content="2026-06-15">
   <meta name="geo.region" content="TW">
   <meta name="geo.placename" content="Taiwan">
   <meta name="geo.position" content="23.6978;120.9605">
   <meta name="ICBM" content="23.6978, 120.9605">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="FALO Prompt Manager v1.01">
+  <meta property="og:title" content="FALO Prompt Manager v2.1">
   <meta property="og:description" content="Falo x Force Cheng local-first PWA for prompt asset management and AI workflow teaching.">
   <meta property="og:locale" content="zh_TW">
   <meta name="twitter:card" content="summary">
-  <title>FALO Prompt Manager v1.01</title>
+  <title>FALO Prompt Manager v2.1</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <script src="./xlsx.full.min.js"></script>
@@ -1031,17 +1031,61 @@
         flex-direction: column;
       }
     }
+
+    /* 衛星外掛狀態徽章樣式 */
+    .extension-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(120, 120, 120, 0.05);
+      border: 1px solid var(--border-color, rgba(120, 120, 120, 0.15));
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #64748b;
+      cursor: default;
+      user-select: none;
+      transition: all 0.2s ease;
+      height: 34px;
+    }
+    
+    .extension-status-badge.connected {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #059669;
+    }
+    
+    .extension-status-badge .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #64748b;
+      display: inline-block;
+      transition: all 0.2s ease;
+    }
+    
+    .extension-status-badge.connected .badge-dot {
+      background-color: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse-green 1.5s infinite;
+    }
+    
+    @keyframes pulse-green {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
   </style>
 </head>
 <body data-theme="light">
-  <!-- FALO Prompt Manager release marker: v1.01 / Falo x Force Cheng / 2026/6/1 -->
+  <!-- FALO Prompt Manager release marker: v2.1 / Falo x Force Cheng / 2026/6/15 -->
   <div class="app-shell">
     <header class="topbar">
       <div class="topbar-inner">
         <div class="brand">
           <h1 class="brand-title">FALO Prompt Manager</h1>
           <p class="brand-subtitle">模型菜 PWA：Prompt 題庫、OCR、Voice、JSON Connect</p>
-          <p class="release-line">v1.01 · Falo x Force Cheng · 2026/6/1</p>
+          <p class="release-line">v2.1 · Falo x Force Cheng · 2026/6/15</p>
         </div>
         <div class="topbar-actions">
           <!-- 匯出群組 -->
@@ -1062,6 +1106,12 @@
             <option value="dark">風格選擇：Dark</option>
             <option value="warm">風格選擇：Warm</option>
           </select>
+          
+          <!-- 衛星外掛狀態徽章 -->
+          <div class="extension-status-badge" id="extStatusBadge" title="等待外掛偵測...">
+            <span class="badge-dot"></span>
+            <span class="badge-text">🛰️ 衛星外掛：未連線</span>
+          </div>
           
           <!-- 隱藏的檔案輸入框 -->
           <input class="file-input" id="fileInput" type="file" accept="application/json,.json">
@@ -1334,24 +1384,24 @@
         <section class="panel pad">
           <h2 class="panel-title">PWA 狀態</h2>
           <p class="panel-note" id="pwaStatus">正在檢查 service worker。</p>
-          <p class="panel-note">版本備註：v1.01 / Falo x Force Cheng / 2026/6/1。</p>
+          <p class="panel-note">版本備註：v2.1 / Falo x Force Cheng / 2026/6/15。</p>
           <p class="panel-note">完整 PWA 驗證請用 localhost 或 HTTPS；file:// 只能看靜態頁。</p>
         </section>
       </aside>
     </main>
   </div>
 
-  <div class="hidden-watermark" aria-hidden="true" data-release="v1.01" data-brand="Falo x Force Cheng" data-date="2026-06-01">
-    FALO Prompt Manager v1.01 | Falo x Force Cheng | 2026/6/1 | Taiwan | Prompt Asset Management PWA
+  <div class="hidden-watermark" aria-hidden="true" data-release="v2.1" data-brand="Falo x Force Cheng" data-date="2026-06-15">
+    FALO Prompt Manager v2.1 | Falo x Force Cheng | 2026/6/15 | Taiwan | Prompt Asset Management PWA
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
     const APP_RELEASE = Object.freeze({
-      version: "v1.01",
+      version: "v2.1",
       brand: "Falo x Force Cheng",
-      releaseDate: "2026/6/1",
+      releaseDate: "2026/6/15",
       geo: "Taiwan",
       note: "Prompt Asset Management PWA teaching release"
     });
@@ -3111,7 +3161,15 @@
       editingPromptId = "";
       promptDraft = null;
       els.searchInput.value = "";
-      saveState();
+      
+      if (input && typeof input === "object" && input.variables) {
+        savedVariables = { ...DEFAULT_VARIABLES, ...input.variables };
+        variables = { ...savedVariables };
+        saveState({ variables: true });
+      } else {
+        saveState();
+      }
+      
       render();
     }
 
@@ -3880,6 +3938,43 @@
     setupVoiceRecognition();
     setupPwa();
     render();
+
+    // 衛星外掛雙向身分偵測與握手機制
+    Object.defineProperty(window, "__FALO_PWA_METADATA__", {
+      get: () => ({
+        pwaInstanceId: "falo-pwa-uuid-class02",
+        sourceName: sourceName || "內建模型菜題庫",
+        version: "1.01",
+        url: window.location.href
+      }),
+      configurable: true,
+      enumerable: true
+    });
+
+    let extLastHeartbeat = 0;
+    
+    window.addEventListener("faloExtensionPing", (e) => {
+      extLastHeartbeat = Date.now();
+      const badge = document.getElementById("extStatusBadge");
+      if (badge) {
+        badge.classList.add("connected");
+        const clientName = e.detail && e.detail.clientName ? e.detail.clientName : "未知衛星";
+        badge.querySelector(".badge-text").textContent = `🛰️ 衛星外掛：已連線 (${clientName})`;
+        badge.title = `已連接外掛\nID: ${e.detail && e.detail.extensionId ? e.detail.extensionId : "未知"}\n最後活動: ${new Date().toLocaleTimeString()}`;
+      }
+    });
+
+    setInterval(() => {
+      if (extLastHeartbeat > 0 && Date.now() - extLastHeartbeat > 6000) {
+        extLastHeartbeat = 0;
+        const badge = document.getElementById("extStatusBadge");
+        if (badge) {
+          badge.classList.remove("connected");
+          badge.querySelector(".badge-text").textContent = "🛰️ 衛星外掛：未連線";
+          badge.title = "等待外掛偵測...";
+        }
+      }
+    }, 2000);
   </script>
 </body>
 </html>

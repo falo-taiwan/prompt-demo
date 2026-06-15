@@ -2,6 +2,28 @@
 
 ## 目前版本
 
+### v2.1 發布標記
+
+| 項目 | 內容 |
+| --- | --- |
+| 版本 | v2.1 |
+| 標記 | Falo x Force Cheng |
+| 日期 | 2026/6/15 |
+| 交付 | 地端 PWA 與 Chrome 外掛連線同步、置頂變數、字型調整、雙向握手與自動備份打包工具 |
+| 地理標記 | Taiwan |
+
+v2.1 版本實現了地端 PWA 與 Chrome 衛星外掛的深度整合與雙向狀態感知，支援多 PWA 分頁連線選擇、字型縮放、置頂變數面板快取、以及專屬打包備份工具。
+
+| 區塊 | 狀態 | 說明 |
+| --- | --- | --- |
+| `packages/local-html` | v2.1 | 本地 PWA，含 Warm 主題、字型大小調整、衛星外掛連線狀態徽章與雙向握手偵測 |
+| `packages/chrome-extension` | v2.1 | Chrome 外掛 (version 2.1.0)，支援字型縮放、置頂變數面板、雙向握手與多 PWA 連線下拉選單 |
+| `packages/shared-schema` | 初版 | Prompt Card schema 文件與 JSON Schema |
+| `packages/gas-sync` | 預留 | 尚未實作 |
+| `examples` | 初版 | 共用範例資料 |
+
+## 歷史版本
+
 ### v1.01 發布標記
 
 | 項目 | 內容 |
@@ -13,15 +35,6 @@
 | 地理標記 | Taiwan |
 
 v1.01 是 Prompt Manager 教材版的第一個公開展示整理版。它保留 v0.3 的產品骨架，但把本地 PWA、編修模式、變數即時預覽、Voice / OCR 入口與 Warm 主題整理成更適合展示與上課的版本。
-
-| 區塊 | 狀態 | 說明 |
-| --- | --- | --- |
-| `packages/local-html` | v1.01 | 清爽風格本地 PWA，含 Warm 主題、即時欄位預覽、Voice / OCR 入口 |
-| `packages/shared-schema` | 初版 | Prompt Card schema 文件與 JSON Schema |
-| `packages/shared-schema/capability-pack.schema.json` | 藍圖 | Runtime 階段預留，不進 v0.3 主線 |
-| `packages/chrome-extension` | 預留 | 尚未實作 |
-| `packages/gas-sync` | 預留 | 尚未實作 |
-| `examples` | 初版 | 共用範例資料 |
 
 ## v0.3 優先順序
 

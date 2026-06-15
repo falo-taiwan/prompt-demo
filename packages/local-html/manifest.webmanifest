@@ -1,10 +1,10 @@
 {
-  "name": "FALO Prompt Manager v1.01",
+  "name": "FALO Prompt Manager v2.1",
   "short_name": "FALO Prompt",
   "description": "Falo x Force Cheng local-first PWA for prompt asset management, model-dish teaching, OCR entry, voice input, and JSON Connect workflows.",
-  "version": "v1.01",
+  "version": "v2.1",
   "author": "Falo x Force Cheng",
-  "release_date": "2026-06-01",
+  "release_date": "2026-06-15",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
