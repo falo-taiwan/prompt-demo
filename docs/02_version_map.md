@@ -2,6 +2,28 @@
 
 ## 目前版本
 
+### v2.2 發布標記
+
+| 項目 | 內容 |
+| --- | --- |
+| 版本 | v2.2 |
+| 標記 | Falo x Force Cheng |
+| 日期 | 2026/6/15 |
+| 交付 | PWA 主中心精簡模式、次要欄位視覺過濾隱藏、localStorage 記憶與 Chrome 外掛變數更新修復 |
+| 地理標記 | Taiwan |
+
+v2.2 版本實現了 PWA 主中心 Prompt 區域的「精簡模式」（預設）與「完整模式」切換鈕，支援 `localStorage` 記憶與加載狀態，在精簡模式下自動過濾並隱藏次要行政欄位，同時修復了 Chrome 外掛側邊欄切換卡片時置頂變數面板未更新的 Bug。
+
+| 區塊 | 狀態 | 說明 |
+| --- | --- | --- |
+| `packages/local-html` | v2.2 | 本地 PWA，含精簡模式切換、Warm 主題、雙向握手偵測 |
+| `packages/chrome-extension` | v2.2 | Chrome 外掛 (version 2.2.0)，修復切換卡片時置頂變數不更新之缺陷 |
+| `packages/shared-schema` | 初版 | Prompt Card schema 文件與 JSON Schema |
+| `packages/gas-sync` | 預留 | 尚未實作 |
+| `examples` | 初版 | 共用範例資料 |
+
+## 歷史版本
+
 ### v2.1 發布標記
 
 | 項目 | 內容 |
