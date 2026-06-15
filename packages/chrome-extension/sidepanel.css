@@ -48,11 +48,11 @@
 }
 
 /* Font Size Scaling Classes mapping */
-body.font-size-lvl-1 { --font-scale-factor: 0.85; }
-body.font-size-lvl-2 { --font-scale-factor: 0.92; }
-body.font-size-lvl-3 { --font-scale-factor: 1.00; }
-body.font-size-lvl-4 { --font-scale-factor: 1.08; }
-body.font-size-lvl-5 { --font-scale-factor: 1.15; }
+:root.font-size-lvl-1 { --font-scale-factor: 0.85; }
+:root.font-size-lvl-2 { --font-scale-factor: 0.92; }
+:root.font-size-lvl-3 { --font-scale-factor: 1.00; }
+:root.font-size-lvl-4 { --font-scale-factor: 1.08; }
+:root.font-size-lvl-5 { --font-scale-factor: 1.15; }
 
 /* Theme: Light (Elegant Light) */
 body.theme-light {

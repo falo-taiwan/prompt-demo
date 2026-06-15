@@ -150,8 +150,8 @@ function updateThemeClass() {
 }
 
 function updateFontSizeClass() {
-  document.body.classList.remove("font-size-lvl-1", "font-size-lvl-2", "font-size-lvl-3", "font-size-lvl-4", "font-size-lvl-5");
-  document.body.classList.add(`font-size-lvl-${currentFontSize}`);
+  document.documentElement.classList.remove("font-size-lvl-1", "font-size-lvl-2", "font-size-lvl-3", "font-size-lvl-4", "font-size-lvl-5");
+  document.documentElement.classList.add(`font-size-lvl-${currentFontSize}`);
   
   if (els.fontSizeLvl) {
     els.fontSizeLvl.textContent = currentFontSize;
